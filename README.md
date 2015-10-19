@@ -10,7 +10,9 @@ var serverUtils = require('./server/base/serverUtils.js')
 serverUtils.addServerEndpoint(configuration);
 
 there are 2 differents kind of endpoints:
-	- standard: use default base/server.js, just configure response.
+
+* standard: use default base/server.js, just configure response.
+```
 	serverUtils.addServerEndpoint({
 		"name": ENDPOINT_NAME,
 		"method": GET/POST/PUT/DELETE,
@@ -20,8 +22,10 @@ there are 2 differents kind of endpoints:
 			"type": RESPONSE_TYPE
 		}
 	});
+```
 
-	- custom: configure endpoint .js and response too.
+* custom: configure endpoint .js and response too.
+```	
 	serverUtils.addServerEndpoint({
 		"name": ENDPOINT_NAME,
 		"server": {
@@ -36,14 +40,17 @@ there are 2 differents kind of endpoints:
 			"type": RESPONSE_TYPE
 		}
 	});
+```
 
 ##create response file 
 when added server endpoint, response configuration is setted:
-"response": {
-	"file": RESPONSE_FILE,
-	"path": RESPONSE_PATH,
-	"type": RESPONSE_TYPE
-}
+```
+	"response": {
+		"file": RESPONSE_FILE,
+		"path": RESPONSE_PATH,
+		"type": RESPONSE_TYPE
+	}
+```
 
 Add response file to indicated path
 
