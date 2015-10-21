@@ -113,23 +113,35 @@ function _createEmployees(number, max) {
 function _generateJSON() {
 	fileSystem.cleanJSON(filesPath);
 	
+	var fileName = "updateHeadquarters";
 	var maxHeadquartersPages = 1;
 	var headquarterPerPage = 500/maxHeadquartersPages;	
 	for(var i=1;i<=maxHeadquartersPages; i++) {
 		var jsonHeadquarters = _createHeadquarters(headquarterPerPage, maxHeadquartersPages);
 
-		var fileName = filesPath+"/updateHeadquarters"+i+".json";
-		fileSystem.saveJson2File(jsonHeadquarters, fileName);
+		var fileName;
+		if(maxHeadquartersPages > 1) {
+			fileName += i;
+		}
+		var fileNamePath = filesPath+"/"+fileName+".json";
+
+		fileSystem.saveJson2File(jsonHeadquarters, fileNamePath);
 	}
 
 
-	var maxEmployeesPages = 10;
+	var fileName = "updateEmployees";
+	var maxEmployeesPages = 1;
 	var employeesPerPage = 25000/maxEmployeesPages;
 	for(var i=1;i<=maxEmployeesPages; i++) {
 		var jsonEmployees = _createEmployees(employeesPerPage, maxEmployeesPages);
 
-		var fileName = filesPath+"/updateEmployees"+i+".json";
-		fileSystem.saveJson2File(jsonEmployees, fileName);
+		var fileName;
+		if(maxHeadquartersPages > 1) {
+			fileName += i;
+		}
+		var fileNamePath = filesPath+"/"+fileName+".json";
+
+		fileSystem.saveJson2File(jsonEmployees, fileNamePath);
 	}
 }
 
