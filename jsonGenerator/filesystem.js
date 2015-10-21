@@ -12,7 +12,7 @@ exports.cleanJSON = function(filesPath) {
 		function(file,index){
 			var curPath = filesPath + "/" + file;
 			if(!fs.lstatSync(curPath).isDirectory()) { 
-				if(path.extname(file).toUpperCase() == "JSON")
+				if(path.extname(file).toUpperCase() == ".JSON")
 					fs.unlinkSync(curPath);
 			}
 		}

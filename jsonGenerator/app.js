@@ -119,11 +119,11 @@ function _generateJSON() {
 	for(var i=1;i<=maxHeadquartersPages; i++) {
 		var jsonHeadquarters = _createHeadquarters(headquarterPerPage, maxHeadquartersPages);
 
-		var fileName;
+		var file = fileName;
 		if(maxHeadquartersPages > 1) {
-			fileName += i;
+			file += i;
 		}
-		var fileNamePath = filesPath+"/"+fileName+".json";
+		var fileNamePath = filesPath+"/"+file+".json";
 
 		fileSystem.saveJson2File(jsonHeadquarters, fileNamePath);
 	}
@@ -135,11 +135,11 @@ function _generateJSON() {
 	for(var i=1;i<=maxEmployeesPages; i++) {
 		var jsonEmployees = _createEmployees(employeesPerPage, maxEmployeesPages);
 
-		var fileName;
-		if(maxHeadquartersPages > 1) {
-			fileName += i;
+		var file = fileName;
+		if(maxEmployeesPages > 1) {
+			file += i;
 		}
-		var fileNamePath = filesPath+"/"+fileName+".json";
+		var fileNamePath = filesPath+"/"+file+".json";
 
 		fileSystem.saveJson2File(jsonEmployees, fileNamePath);
 	}
