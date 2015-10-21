@@ -30,8 +30,7 @@ Add response file to indicated path 'SERVER_NAME/ENDPOINT.extension'
 
 ####create endpoint services .js
 
-
-
+TO-DO
 
 
 Please put custom endpoints and related responses into same directory.
