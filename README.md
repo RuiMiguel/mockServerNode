@@ -5,6 +5,7 @@ many times when we develop mobile apps with back-end server side, we always have
 
 ##enviroment
 install NodeJs from https://nodejs.org/en/
+
 update project packages with Node Package Manager:
 ```$ npm update --save```
 
