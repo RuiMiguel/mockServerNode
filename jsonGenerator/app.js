@@ -130,7 +130,7 @@ function _generateJSON() {
 
 
 	var fileName = "updateEmployees";
-	var maxEmployeesPages = 1;
+	var maxEmployeesPages = 10;
 	var employeesPerPage = 25000/maxEmployeesPages;
 	for(var i=1;i<=maxEmployeesPages; i++) {
 		var jsonEmployees = _createEmployees(employeesPerPage, maxEmployeesPages);

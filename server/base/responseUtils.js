@@ -1,6 +1,6 @@
 
 function _addHeader(response, key, value) {
-	console.log("--- header key: "+key+" value: "+value);
+	console.log("--- added header: key= "+key+" value= "+value);
 	response.setHeader(key, value);
 }
 

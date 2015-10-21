@@ -27,25 +27,29 @@ exports.init = function(app, options) {
 	responseType = options.response.type;
 
 	switch(method) {
-		case 'POST':
-			app.post(serverEndpoint, function (req, res) {			  	
-			  	console.log(method+' '+serverEndpoint);
+		case 'GET':
+			app.get(serverEndpoint, function (req, res) {			  	
+			  	console.log("\n"+method+" "+serverEndpoint);
 
-			  	requestUtils.showBodyParams(req);
-			  	var index = requestUtils.getBodyParam(req, "page");
-				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile+index, responseType);
+				requestUtils.showQueryParams(req);
+
+				var index = requestUtils.getQueryParam(req, "page");
+				if(index  != undefined) {
+					responseFile = responseFile+index;
+				}
+
+				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile, responseType);
 
 				responseUtils.setHeaders(res, responseType);
 			  	res.send(response);
 			});
 			break;
-		case 'GET':
+		case 'POST':
 			app.post(serverEndpoint, function (req, res) {			  	
-			  	console.log(method+' '+serverEndpoint);
+			  	console.log("\n"+method+" "+serverEndpoint);
 
-				requestUtils.showQueryParams(req);
-
-				var index = requestUtils.getQueryParam(req, "page");
+			  	requestUtils.showBodyParams(req);
+			  	var index = requestUtils.getBodyParam(req, "page");
 				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile+index, responseType);
 
 				responseUtils.setHeaders(res, responseType);

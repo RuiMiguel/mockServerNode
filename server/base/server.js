@@ -29,7 +29,7 @@ exports.init = function(app, options) {
 	switch(method) {
 		case 'GET':
 			app.get(serverEndpoint, function (req, res) {
-			  	console.log(method+' '+serverEndpoint);
+			  	console.log("\n"+method+" "+serverEndpoint);
 
 				requestUtils.showQueryParams(req);
 
@@ -41,7 +41,7 @@ exports.init = function(app, options) {
 			break;
 		case 'POST':
 			app.post(serverEndpoint, function (req, res) {			  	
-			  	console.log(method+' '+serverEndpoint);
+			  	console.log("\n"+method+" "+serverEndpoint);
 
 				requestUtils.showQueryParams(req);
 			  	requestUtils.showBodyParams(req);
@@ -54,7 +54,7 @@ exports.init = function(app, options) {
 			break;
 		case 'PUT':
 			app.put(serverEndpoint, function (req, res) {
-			  	console.log(method+' '+serverEndpoint);
+			  	console.log("\n"+method+" "+serverEndpoint);
 
 				requestUtils.showQueryParams(req);
 			  	requestUtils.showBodyParams(req);
@@ -67,7 +67,7 @@ exports.init = function(app, options) {
 			break;			
 		case 'DELETE':
 			app.delete(serverEndpoint, function (req, res) {
-			  	console.log(method+' '+serverEndpoint);
+			  	console.log("\n"+method+" "+serverEndpoint);
 
 				requestUtils.showQueryParams(req);
 			  	requestUtils.showBodyParams(req);

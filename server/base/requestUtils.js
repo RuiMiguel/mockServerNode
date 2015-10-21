@@ -1,5 +1,10 @@
 var bodyParser = require("body-parser");
 
+function _showListElements(list) {
+	for(elem in list) {
+		console.log(elem+": "+list[elem]);
+  	}
+}
 
 exports.getBodyParam = function(request, key) {
 	var value;
@@ -19,14 +24,10 @@ exports.getQueryParam = function(request, key) {
 
 exports.showBodyParams = function(request) {
 	console.log("--- body params");
-	for(elem in request.body) {
-		console.log(elem+": "+request.body[elem]);
-  	}
+	_showListElements(request.body);
 }
 
 exports.showQueryParams = function(request) {
 	console.log("--- query params");
-	for(elem in request.query) {
-		console.log(elem+": "+request.query[elem]);
-  	}
+	_showListElements(request.query);
 }

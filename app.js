@@ -6,9 +6,30 @@ addServerEndpoints();
 serverUtils.launchServer(serverName);
 
 function addServerEndpoints() {
+	//database version
+	serverUtils.addServerEndpoint({
+		"name": "version",
+		"server": {
+			"path": "dbVersion",
+			"file": "dbVersion",
+			"endpoint": "dbVersion"
+		},
+		"method": "POST",
+		"response": {
+			"file": "dbVersion",
+			"path": "dbVersion",
+			"type": "JSON"
+		}
+	});
+
 	//do login
 	serverUtils.addServerEndpoint({
 		"name": "login",
+		"server": {
+			"path": "login",
+			"file": "login",
+			"endpoint": "login"
+		},
 		"method": "POST",
 		"response": {
 			"file": "login",
@@ -17,33 +38,31 @@ function addServerEndpoints() {
 		}
 	});
 
-/*
 	//update headquarters
 	serverUtils.addServerEndpoint({
 		"name": "update",
 		"server": {
 			"path": "update",
-			"file": "update",
+			"file": "updateHeadquarters",
 			"endpoint": "updateHeadquarters"
 		},
-		"method": "GET",
+		"method": "POST",
 		"response": {
 			"path": "update",
 			"file": "updateHeadquarters",
 			"type": "JSON"
 		}
 	});
-	*/
-
+	
 	//update employees
 	serverUtils.addServerEndpoint({
 		"name": "update",
 		"server": {
 			"path": "update",
-			"file": "update",
+			"file": "updateEmployees",
 			"endpoint": "updateEmployees"
 		},
-		"method": "GET",
+		"method": "POST",
 		"response": {
 			"path": "update",
 			"file": "updateEmployees",
