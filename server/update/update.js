@@ -1,5 +1,6 @@
 var fileSystemUtils = require('../filesystem.js');
 var responseUtils = require('../base/responseUtils.js');
+var requestUtils = require('../base/requestUtils.js');
 
 var name;
 var serverFile;
@@ -30,9 +31,22 @@ exports.init = function(app, options) {
 			app.post(serverEndpoint, function (req, res) {			  	
 			  	console.log(method+' '+serverEndpoint);
 
-			  	responseUtils.showParams(req.body);
+			  	requestUtils.showBodyParams(req);
+			  	var index = requestUtils.getBodyParam(req, "page");
+				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile+index, responseType);
 
-				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile, responseType);
+				responseUtils.setHeaders(res, responseType);
+			  	res.send(response);
+			});
+			break;
+		case 'GET':
+			app.post(serverEndpoint, function (req, res) {			  	
+			  	console.log(method+' '+serverEndpoint);
+
+				requestUtils.showQueryParams(req);
+
+				var index = requestUtils.getQueryParam(req, "page");
+				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile+index, responseType);
 
 				responseUtils.setHeaders(res, responseType);
 			  	res.send(response);

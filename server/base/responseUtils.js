@@ -4,13 +4,6 @@ function _addHeader(response, key, value) {
 	response.setHeader(key, value);
 }
 
-exports.showParams = function(list) {
-	console.log("--- params");
-	for(elem in list) {
-		console.log(elem+": "+list[elem]);
-  	}
-}
-
 exports.addHeader = function(response, key, value) {
 	_addHeader(response, key, value);
 }

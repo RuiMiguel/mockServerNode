@@ -103,7 +103,8 @@ exports.addServerEndpoint = function(options) {
 		_createStandardEndpoint(options);
 	}
 	else {
-		console.log("--- custom request endpoint server '%s' ---", serverName);
+		var serverEndpoint = options.server.endpoint;
+		console.log("--- custom request endpoint server '%s/%s' ---", serverName, serverEndpoint);
 		_createCustomEndpoint(options);
 	}
 }

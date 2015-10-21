@@ -1,5 +1,6 @@
 var fileSystemUtils = require('../filesystem.js');
 var responseUtils = require('./responseUtils.js');
+var requestUtils = require('../base/requestUtils.js');
 
 var name;
 var serverFile;
@@ -30,6 +31,8 @@ exports.init = function(app, options) {
 			app.get(serverEndpoint, function (req, res) {
 			  	console.log(method+' '+serverEndpoint);
 
+				requestUtils.showQueryParams(req);
+
 				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile, responseType);
 
 		    	responseUtils.setHeaders(res, responseType);
@@ -40,7 +43,8 @@ exports.init = function(app, options) {
 			app.post(serverEndpoint, function (req, res) {			  	
 			  	console.log(method+' '+serverEndpoint);
 
-			  	responseUtils.showParams(req.body);
+				requestUtils.showQueryParams(req);
+			  	requestUtils.showBodyParams(req);
 
 				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile, responseType);
 
@@ -52,6 +56,9 @@ exports.init = function(app, options) {
 			app.put(serverEndpoint, function (req, res) {
 			  	console.log(method+' '+serverEndpoint);
 
+				requestUtils.showQueryParams(req);
+			  	requestUtils.showBodyParams(req);
+			  	
 				var response = "PUT request";
 
 		    	responseUtils.setHeaders(res, responseType);
@@ -62,6 +69,9 @@ exports.init = function(app, options) {
 			app.delete(serverEndpoint, function (req, res) {
 			  	console.log(method+' '+serverEndpoint);
 
+				requestUtils.showQueryParams(req);
+			  	requestUtils.showBodyParams(req);
+			  	
 				var response = "DELETE request";
 
 		    	responseUtils.setHeaders(res, responseType);
