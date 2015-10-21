@@ -9,50 +9,29 @@ into app.js in root, add server endpoint by JSON configuration:
 var serverUtils = require('./server/base/serverUtils.js')
 serverUtils.addServerEndpoint(configuration);
 
-there are 2 differents kind of endpoints:
-
-* standard: use default base/server.js, just configure response.
+####configure json:
 ```
 	serverUtils.addServerEndpoint({
-		"name": ENDPOINT_NAME,
-		"method": GET/POST/PUT/DELETE,
-		"response": {
-			"file": RESPONSE_FILE,
-			"path": RESPONSE_PATH,
-			"type": RESPONSE_TYPE
-		}
-	});
-```
-
-* custom: configure endpoint .js and response too.
-```	
-	serverUtils.addServerEndpoint({
-		"name": ENDPOINT_NAME,
+		"name": SERVER_NAME,
 		"server": {
-			"file": ENDPOINT_FILE,
-			"path": ENDPOINT_PATH,
-			"endpoint": ENDPOINT
-		},
-		"method": GET/POST/PUT/DELETE,
+			"method": GET/POST/PUT/DELETE,
+			"endpoint": /ENDPOINT
+		},		
 		"response": {
-			"file": RESPONSE_FILE,
-			"path": RESPONSE_PATH,
 			"type": RESPONSE_TYPE
 		}
 	});
 ```
 
-##create response file 
-when added server endpoint, response configuration is setted:
-```
-	"response": {
-		"file": RESPONSE_FILE,
-		"path": RESPONSE_PATH,
-		"type": RESPONSE_TYPE
-	}
-```
+* SERVER_NAME will be your server path and name
+* ENDPOINT is the '/' char followed by the name of the endpoint of your server. It will be your response file name too.
 
-Add response file to indicated path
+Add response file to indicated path 'SERVER_NAME/ENDPOINT.extension'
+
+####create endpoint services .js
+
+
+
 
 
 Please put custom endpoints and related responses into same directory.

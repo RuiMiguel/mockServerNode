@@ -21,13 +21,16 @@ function _printServerHelp() {
 		if(serverEndpoint.showHelp && typeof serverEndpoint.showHelp == 'function') {
 			helpResponse += serverEndpoint.showHelp() +"<br/>";
 		}
+		else {
+			console.error("Error: server '%s' doesn't have 'showHelp' method. Please create it!", serverEndpoint);
+		}	
 	}
 		
 	return helpResponse;
 }
 
 function _showServerHelp() {
-	console.log("\n===================================== HELP");
+	console.log("\n================================================ HELP");
 	for(index in availableEndpoints) {
 		var serverEndpoint = availableEndpoints[index];
 
@@ -39,7 +42,54 @@ function _showServerHelp() {
 			console.error("Error: server '%s' doesn't have 'showHelp' method. Please create it!", serverEndpoint);
 		}		
 	}
-	console.log("=====================================");
+	console.log("================================================");
+}
+
+function _validateServerEndpointConfiguration(options) {
+	var validate = true;
+		
+	if(options == undefined) {
+		console.warn("-- server bad configurated, no 'options' setted --");
+		validate = false;
+	}
+
+	if(options.server == undefined) {
+		console.warn("-- server bad configurated, no 'server' field setted --");
+		validate = false;
+	}
+	else {
+		if(options.server.method == undefined) {
+			console.warn("-- server bad configurated, no 'server.method' value setted --");
+			validate = false;
+		}
+		if(options.server.endpoint == undefined) {
+			console.warn("-- server bad configurated, no 'server.endpoint' value setted --");
+			validate = false;
+		}
+	}
+
+	if(options.response == undefined) {
+		console.warn("-- server bad configurated, no 'response' field setted --");
+		validate = false;
+	}
+	else {
+		if(options.response.type == undefined) {
+			console.warn("-- server bad configurated, no 'response.type' value setted --");
+			validate = false;
+		}
+	}
+
+	return validate;
+}
+
+function _existsEndpoint(serverName,serverEndpoint) {
+	var exists = false;
+
+	for(index in availableEndpoints) {
+		var endpoint = availableEndpoints[index];
+		if((endpoint.name() == serverName) && (endpoint.serverEndpoint() == serverEndpoint)) exists = true;
+	}
+	return exists;
 }
 
 function _createRootEndpoint() {
@@ -50,36 +100,44 @@ function _createRootEndpoint() {
 	})
 }
 
-function _createStandardEndpoint(options) {
-	options.server = {
-		"file" : "server",
-		"path" : "base",
-		"endpoint" : options.name
-	};
-	_createEndpoint(options);
-}
-
-function _createCustomEndpoint(options) {
-	_createEndpoint(options);
-}
-
 function _createEndpoint(options) {
 	var serverName = options.name;
-	var server = options.server;
+	var serverEndpoint = options.server.endpoint;
 
-	var requestEndpointPath = fileSystemUtils.getRequestEndpointPath(server.path,server.file);
+	var requestEndpointPath = fileSystemUtils.getRequestEndpointPath(serverName,serverEndpoint);
 
 	if(fileSystemUtils.existsEndpointPath(requestEndpointPath)) {
-		var serverEndpoint = require(requestEndpointPath);
+		var exists = _existsEndpoint(serverName,serverEndpoint);
+		if(!exists) {
+			var newServerEndpoint = require(requestEndpointPath);
 		
-		//init requestCall
-		serverEndpoint.init(app, options);
-		availableEndpoints.push(serverEndpoint);
+			//init requestCall
+			newServerEndpoint.init(app, options);
+			availableEndpoints.push(newServerEndpoint);
+		}
+		else {
+			console.warn("-- server '%s%s' yet exists in available endpoints! please review its configuration --", serverName, serverEndpoint);
+		}
 	}
 	else 
 		console.error("Error: '%s' can't be created, '%s' don't exists", serverName, requestEndpointPath);
 }
+ 
+exports.addServerEndpoint = function(options) {
+	if(_validateServerEndpointConfiguration(options)) {
+		var serverName = options.name;
+		var serverEndpoint = options.server.endpoint;
 
+		console.log("++ request endpoint server '%s%s'", serverName, serverEndpoint);
+		_createEndpoint(options);
+	}
+	else {
+		console.warn("-- server bad configurated, not added! please review its configuration --");
+
+		var sampleConfiguration = "{'name': SERVER_NAME,'server': {'method': GET/POST/PUT/DELETE,'endpoint': /ENDPOINT},'response': {'type': RESPONSE_TYPE}";
+		console.warn("** %s **\n",sampleConfiguration);
+	}
+}
 
 exports.launchServer = function(serverName) {
 	_createRootEndpoint();
@@ -93,18 +151,4 @@ exports.launchServer = function(serverName) {
 
 		console.log("\n+++++ " + serverName + " server listening at http://%s:%s +++++\n", host, port);
 	})
-}
-
-exports.addServerEndpoint = function(options) {
-	var serverName = options.name;
-	var server = options.server;
-	if(server == null) {
-		console.log("\n--- standard request endpoint server '%s' ---", serverName);
-		_createStandardEndpoint(options);
-	}
-	else {
-		var serverEndpoint = options.server.endpoint;
-		console.log("--- custom request endpoint server '%s/%s' ---", serverName, serverEndpoint);
-		_createCustomEndpoint(options);
-	}
 }

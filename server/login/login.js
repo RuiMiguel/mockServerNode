@@ -1,6 +1,4 @@
-var fileSystemUtils = require('../filesystem.js');
-var responseUtils = require('../base/responseUtils.js');
-var requestUtils = require('../base/requestUtils.js');
+var baseServer = require('../base/server.js');
 
 var name;
 var serverFile;
@@ -17,43 +15,48 @@ function _showHelp() {
 	return helpMessage;
 }
 
+function _createEndpoints(app) {
+	baseServer.call(app, serverEndpoint, method, responseType, function (request) {			  	
+	  	var response;
+		
+		var user = baseServer.getBodyParam(request, "user");
+		var password = baseServer.getBodyParam(request, "password");
+		if((user != undefined) && (password != undefined)) {
+			response = baseServer.loadResponseFile(responsePath, responseFile, responseType);	
+		}
+		else {
+			response = {
+				"code": 1,
+				"error": "'user' & 'password' are empty"
+			};
+		}
+
+	  	return response;
+	});
+}
+
 exports.init = function(app, options) {
 	name = options.name;
-	serverFile = options.server.file;
-	serverPath = options.server.path;
-	serverEndpoint = '/'+options.server.endpoint;
-	method = options.method;
-	responseFile = options.response.file;
-	responsePath = options.response.path;
+	serverPath = options.name;
+	serverFile = options.server.endpoint;
+	serverEndpoint = options.server.endpoint;
+	method = options.server.method;
+	responsePath = options.name;
+	responseFile = options.server.endpoint;
 	responseType = options.response.type;
 
-	switch(method) {
-		case 'POST':
-			app.post(serverEndpoint, function (req, res) {			  	
-			  	console.log("\n"+method+" "+serverEndpoint);
-			  	
-			  	var response;
-
-			  	requestUtils.showBodyParams(req);
-			  	var user = requestUtils.getBodyParam(req, "user");
-				var password = requestUtils.getBodyParam(req, "password");
-				if((user != undefined) && (password != undefined)) {
-					response = fileSystemUtils.loadResponseFile(responsePath, responseFile, responseType);	
-				}
-				else {
-					response = {
-						"code": 1,
-						"error": "'user' & 'password' are empty"
-					};
-				}
-
-				responseUtils.setHeaders(res, responseType);
-			  	res.send(response);
-			});
-			break;
-	}	
+	_createEndpoints(app);
 }
 
 exports.showHelp = function() {
 	return _showHelp();
 }
+
+exports.name = function() {return name;}
+exports.serverFile = serverFile
+exports.serverPath = serverPath
+exports.serverEndpoint = function() {return serverEndpoint;}
+exports.method = method
+exports.responseFile = responseFile
+exports.responsePath = responsePath
+exports.responseType = responseType

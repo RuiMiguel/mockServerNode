@@ -2,85 +2,142 @@ var fileSystemUtils = require('../filesystem.js');
 var responseUtils = require('./responseUtils.js');
 var requestUtils = require('../base/requestUtils.js');
 
-var name;
-var serverFile;
-var serverPath;
-var serverEndpoint;
-var method;
-var responseFile;
-var responsePath;
-var responseType;
-
-function _showHelp() {
-	var helpMessage = "*** " + name + ": use " + method + " " + serverEndpoint;
-	return helpMessage;
+function _completeEndpoint(serverEndpoint) {
+	if(!serverEndpoint.startsWith("/")) serverEndpoint = "/"+serverEndpoint;
+	return serverEndpoint;
 }
 
-exports.init = function(app, options) {
-	name = options.name;
-	serverFile = options.server.file;
-	serverPath = options.server.path;
-	serverEndpoint = '/'+options.server.endpoint;
-	method = options.method;
-	responseFile = options.response.file;
-	responsePath = options.response.path;
-	responseType = options.response.type;
+function _doGet(app, endpoint, onCallback) {
+	app.get(endpoint, onCallback);
+}
+function _doPost(app, endpoint, onCallback) {
+	app.post(endpoint, onCallback);
+}
+function _doPut(app, endpoint, onCallback) {
+	app.put(endpoint, onCallback);
+}
+function _doDelete(app, endpoint, onCallback) {
+	app.delete(endpoint, onCallback);
+}
+
+function _showBodyParams(request) {
+	requestUtils.showBodyParams(request);
+}
+
+function _setHeaders(response, type) {
+	responseUtils.setHeaders(response, type);
+}
+
+exports.getBodyParam = function(request, key) {
+	return requestUtils.getBodyParam(request, key);
+}
+
+exports.addHeader = function(response, key, value) {
+	responseUtils.addHeader(response, key, value);
+}
+
+exports.loadResponseFile = function(path, file, type) {
+	return fileSystemUtils.loadResponseFile(path, file, type);
+}
+
+exports.call = function(app, serverEndpoint, method, type, onCallback) {
+	serverEndpoint = _completeEndpoint(serverEndpoint);
 
 	switch(method) {
 		case 'GET':
-			app.get(serverEndpoint, function (req, res) {
-			  	console.log("\n"+method+" "+serverEndpoint);
+			_doGet(app, serverEndpoint, function(req, res) {
+				console.log("\n"+method+" "+serverEndpoint);
 
-				requestUtils.showQueryParams(req);
+				var responseData = "";
+				
+				_setHeaders(res, type);
 
-				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile, responseType);
+				if(onCallback && typeof onCallback == 'function') {
+					responseData = onCallback(req);
+				}
+				else {
+					console.error("Error: endpoint '%s' doesn't have onCallback method", serverEndpoint);
+				}
 
-		    	responseUtils.setHeaders(res, responseType);
-			  	res.send(response);
+				res.send(responseData);
 			});
 			break;
 		case 'POST':
-			app.post(serverEndpoint, function (req, res) {			  	
-			  	console.log("\n"+method+" "+serverEndpoint);
+			_doPost(app, serverEndpoint, function(req, res) {
+				console.log("\n"+method+" "+serverEndpoint);
 
-				requestUtils.showQueryParams(req);
-			  	requestUtils.showBodyParams(req);
+				var responseData = "";
+				
+				_showBodyParams(req);
+				_setHeaders(res, type);
 
-				var response = fileSystemUtils.loadResponseFile(responsePath, responseFile, responseType);
+				if(onCallback && typeof onCallback == 'function') {
+					responseData = onCallback(req);
+				}
+				else {
+					console.error("Error: endpoint '%s' doesn't have onCallback method", serverEndpoint);
+				}
 
-		    	responseUtils.setHeaders(res, responseType);
-			  	res.send(response);
+				res.send(responseData);
 			});
 			break;
 		case 'PUT':
-			app.put(serverEndpoint, function (req, res) {
-			  	console.log("\n"+method+" "+serverEndpoint);
+			_doPut(app, serverEndpoint, function(req, res) {
+				console.log("\n"+method+" "+serverEndpoint);
 
-				requestUtils.showQueryParams(req);
-			  	requestUtils.showBodyParams(req);
-			  	
-				var response = "PUT request";
+				var responseData = "";
+				
+				_showBodyParams(req);
+				_setHeaders(res, type);
 
-		    	responseUtils.setHeaders(res, responseType);
-			  	res.send(response);
-			});
-			break;			
-		case 'DELETE':
-			app.delete(serverEndpoint, function (req, res) {
-			  	console.log("\n"+method+" "+serverEndpoint);
+				if(onCallback && typeof onCallback == 'function') {
+					responseData = onCallback(req);
+				}
+				else {
+					console.error("Error: endpoint '%s' doesn't have onCallback method", serverEndpoint);
+				}
 
-				requestUtils.showQueryParams(req);
-			  	requestUtils.showBodyParams(req);
-			  	
-				var response = "DELETE request";
-
-		    	responseUtils.setHeaders(res, responseType);
-			  	res.send(response);
+				res.send(responseData);
 			});
 			break;
-	}	
-}
+		case 'DELETE':
+			_doDelete(app, serverEndpoint, function(req, res) {
+				console.log("\n"+method+" "+serverEndpoint);
 
-exports.showHelp = function() {
-	return _showHelp();
+				var responseData = "";
+				
+				_showBodyParams(req);
+				_setHeaders(res, type);
+
+				if(onCallback && typeof onCallback == 'function') {
+					responseData = onCallback(req);
+				}
+				else {
+					console.error("Error: endpoint '%s' doesn't have onCallback method", serverEndpoint);
+				}
+
+				res.send(responseData);
+			});
+			break;
+		default:
+			_doGet(app, serverEndpoint, function(req, res) {
+				console.log("\ndefault method "+serverEndpoint);
+
+				var responseData = "";
+				
+				_showBodyParams(req);
+				_setHeaders(res, type);
+
+				if(onCallback && typeof onCallback == 'function') {
+					responseData = onCallback(req);
+
+				}
+				else {
+					console.error("Error: endpoint '%s' doesn't have onCallback method", serverEndpoint);
+				}
+
+				res.send(responseData);
+			});
+			break;
+	}
 }
