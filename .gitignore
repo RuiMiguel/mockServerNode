@@ -1,3 +1,6 @@
+*/tmp/*
+server/*/*.json
+
 # Logs
 logs
 *.log
