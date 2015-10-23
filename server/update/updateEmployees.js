@@ -22,7 +22,7 @@ function _createEndpoints(app) {
 		
 	  	var token = baseServer.getBodyParam(request, "token");
 		if(token != undefined) {
-			var index = baseServer.getBodyParam(request, "page");
+			var index = baseServer.getQueryParam(request, "page");
 			if(index != undefined) {
 				responseFile = responseFile+index;
 			}

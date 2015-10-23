@@ -1,22 +1,42 @@
 var utils = require('./utils.js');
 var fileSystem = require('./filesystem.js');
+var ip = require("ip");
 
 var filesPath = "./tmp";
 
-function _createNextUrl(maxPages, index) {
+function _getIpAddress() {
+	var ipAddress = ip.address();
+	return ipAddress;
+}
+
+function _createNextHeadquarterUrl(index, maxPages) {
+	var endpoint = "updateHeadquarters";
+	return _createNextUrl(index, maxPages, endpoint);
+}
+function _createNextEmployeeUrl(index, maxPages) {
+	var endpoint = "updateEmployees";
+	return _createNextUrl(index, maxPages, endpoint);
+}
+
+function _createNextUrl(index, maxPages, endpoint) {
 	var next;
 	if(index < maxPages) {
-		next = "http://localhost/update?page="+(index+1);
+		var ipAddress = _getIpAddress();
+		next = "http://"+ipAddress+"/"+endpoint+"?page="+(index+1);
 	}
 	else {
 		next = "";
 	}
+
+	console.log("INDEX="+index);
+	console.log("MAXPAGES="+maxPages);
+	console.log("NEXT="+next);
 	return next;
 }
 
-function _createHeadquarters(number, max) {
+function _createHeadquarters(number, page, maxPages) {
 	var jsonHeadquarters = {
-			"next" : _createNextUrl(max, number),
+			"next" : _createNextHeadquarterUrl(page, maxPages),
 			"data": []
 		};
 
@@ -65,9 +85,9 @@ function _createHeadquarters(number, max) {
 	return jsonHeadquarters;
 }
 
-function _createEmployees(number, max) {
+function _createEmployees(number, page, maxPages) {
 	var jsonEmployees = {
-			"next" : _createNextUrl(max, number),
+			"next" : _createNextEmployeeUrl(page, maxPages),
 			"data": []
 		};
 
@@ -117,7 +137,7 @@ function _generateJSON() {
 	var maxHeadquartersPages = 1;
 	var headquarterPerPage = 500/maxHeadquartersPages;	
 	for(var i=1;i<=maxHeadquartersPages; i++) {
-		var jsonHeadquarters = _createHeadquarters(headquarterPerPage, maxHeadquartersPages);
+		var jsonHeadquarters = _createHeadquarters(headquarterPerPage, i, maxHeadquartersPages);
 
 		var file = fileName;
 		if(maxHeadquartersPages > 1) {
@@ -133,7 +153,7 @@ function _generateJSON() {
 	var maxEmployeesPages = 10;
 	var employeesPerPage = 25000/maxEmployeesPages;
 	for(var i=1;i<=maxEmployeesPages; i++) {
-		var jsonEmployees = _createEmployees(employeesPerPage, maxEmployeesPages);
+		var jsonEmployees = _createEmployees(employeesPerPage, i, maxEmployeesPages);
 
 		var file = fileName;
 		if(maxEmployeesPages > 1) {

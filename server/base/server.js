@@ -32,6 +32,10 @@ exports.getBodyParam = function(request, key) {
 	return requestUtils.getBodyParam(request, key);
 }
 
+exports.getQueryParam = function(request, key) {
+	return requestUtils.getQueryParam(request, key);
+}
+
 exports.addHeader = function(response, key, value) {
 	responseUtils.addHeader(response, key, value);
 }
