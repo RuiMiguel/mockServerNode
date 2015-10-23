@@ -22,7 +22,8 @@ function _createNextUrl(index, maxPages, endpoint) {
 	var next;
 	if(index < maxPages) {
 		var ipAddress = _getIpAddress();
-		next = "http://"+ipAddress+"/"+endpoint+"?page="+(index+1);
+		//next = "http://"+ipAddress+"/"+endpoint+"?page="+(index+1);
+		next = ""+(index+1);
 	}
 	else {
 		next = "";
