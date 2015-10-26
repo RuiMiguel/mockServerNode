@@ -11,7 +11,7 @@ var responseType;
 
 function _showHelp() {
 	var helpMessage = "*** " + name + ": use " + method + " " + serverEndpoint;
-	helpMessage += "\n query params: 'page'";
+	helpMessage += "\n query params: 'page' [optional]";
 	helpMessage += "\n body params: 'token'";
 	return helpMessage;
 }
