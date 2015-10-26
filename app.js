@@ -6,6 +6,18 @@ addServerEndpoints();
 serverUtils.launchServer(serverName);
 
 function addServerEndpoints() {
+	//do login
+	serverUtils.addServerEndpoint({
+		"name": "login",
+		"server": {
+			"method": "POST",	
+			"endpoint": "/login"
+		},
+		"response": {
+			"type": "JSON"
+		}
+	});
+
 	//database version
 	serverUtils.addServerEndpoint({
 		"name": "dbVersion",
@@ -18,12 +30,12 @@ function addServerEndpoints() {
 		}
 	});
 
-	//do login
+	//check session valid
 	serverUtils.addServerEndpoint({
-		"name": "login",
+		"name": "session",
 		"server": {
 			"method": "POST",	
-			"endpoint": "/login"
+			"endpoint": "/checkSession"
 		},
 		"response": {
 			"type": "JSON"

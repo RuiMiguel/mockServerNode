@@ -1,4 +1,3 @@
-
 function _addHeader(response, key, value) {
 	console.log("--- added header: key="+key+" value="+value);
 	response.setHeader(key, value);
@@ -9,6 +8,8 @@ exports.addHeader = function(response, key, value) {
 }
 
 exports.setHeaders = function(response, responseType){
+	_addHeader(response, 'Accept-Encoding', 'gzip, deflate');
+
 	switch(responseType) {
 		case 'JSON':
 			_addHeader(response, 'Content-Type', 'application/json');
