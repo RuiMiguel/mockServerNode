@@ -1,21 +1,7 @@
-var fileSystemUtils = require('../filesystem.js');
-var responseUtils = require('./responseUtils.js');
-var requestUtils = require('./requestUtils.js');
+var fileSystemUtils = require('./utils/FileSystem.js');
 
-function _loadResponseBaseFile(type) {
-	return fileSystemUtils.loadResponseFile("base", "response", type);
-}
-
-function _setResponse(response, data, code, error) {
-	if(code != undefined) response.code = code;
-	else response.code = "0";
-
-	if(error != undefined) response.error = error;
-
-	if(data != undefined) response.data = data;
-
-	return response;
-}
+var responseObject = require('./entities/Response.js');
+var requestObject = require('./entities/Request.js');
 
 function _completeEndpoint(serverEndpoint) {
 	if(!serverEndpoint.startsWith("/")) serverEndpoint = "/"+serverEndpoint;
@@ -44,12 +30,14 @@ function _setHeaders(response, type) {
 }
 
 function _printErrorMessage(serverEndpoint, type, code, error, data) {
-	var response = _loadResponseBaseFile(type);
-	msg = "Error: endpoint '"+serverEndpoint+"' doesn't have onCallback method";
-	response = _setResponse(response, data, code, msg);
-	console.error(msg);
+	var response = responseObject.Response();
+	response.setCode(code);
+	response.setData(data);
+	response.setError(error);
 
-	return response;
+	console.error(error);
+
+	return response.print();
 }
 
 exports.getBodyParam = function(request, key) {
@@ -65,10 +53,11 @@ exports.addHeader = function(response, key, value) {
 }
 
 exports.loadResponseFile = function(path, file, type) {
-	var responseBase = _loadResponseBaseFile(type);
 	var responseData = fileSystemUtils.loadResponseFile(path, file, type);
 
-	return _setResponse(responseBase, responseData);
+	var response = responseObject.Response();
+	response.setData(responseData); 
+	return response;
 }
 
 exports.call = function(app, serverEndpoint, method, type, onCallback) {

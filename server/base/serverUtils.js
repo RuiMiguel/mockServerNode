@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 var express = require('express');
 var compress = require('compression');
 var bodyParser = require("body-parser");
-var fileSystemUtils = require('../filesystem.js');
+var fileSystemUtils = require('./utils/FileSystem.js');
 var ip = require("ip");
 
 var app = express();
