@@ -21,14 +21,16 @@ function _createEndpoints(app) {
 		
 		var user = baseServer.getBodyParam(request, "user");
 		var password = baseServer.getBodyParam(request, "password");
-		if((user != undefined) && (password != undefined)) {
-			response = baseServer.loadResponseFile(responsePath, responseFile, responseType);	
-		}
-		else {
-			response = {
-				"code": 1,
-				"error": "'user' & 'password' are empty"
-			};
+		response = baseServer.loadResponseFile(responsePath, responseFile, responseType);	
+
+		if((user == undefined) || (password == undefined)) {
+			response.code = "1";
+			response.error = "bad POST body parameters";
+
+			if(user == undefined) 
+				response.data = { "message": "'user' empty"};
+			if(password == undefined) 
+				response.data = { "message": "'password' empty"};
 		}
 
 	  	return response;

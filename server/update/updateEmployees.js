@@ -31,10 +31,10 @@ function _createEndpoints(app) {
 			response = baseServer.loadResponseFile(responsePath, file, responseType);	
 		}
 		else {
-			response = {
-				"code": 1,
-				"error": "'token' is empty"
-			};
+			response = baseServer.loadResponseFile(responsePath, responseFile, responseType);	
+			response.code = "1";
+			response.error = "bad POST body parameters";
+			response.data = { "message": "'token' empty"};
 		}
 
 	  	return response;

@@ -35,6 +35,15 @@ function _getResponseExtension(responseType) {
 	return responseExtension;
 }
 
+function _parseResponse(response, responseType) {
+	switch(responseType) {
+		case 'JSON':
+			response = JSON.parse(response);
+			break;
+	}
+	return response;
+}
+
 exports.getRequestEndpointPath = function(serverPath, serverFile) {
 	var file = "./"+serverPath+"/"+serverFile+".js"
 	return _getPath(file);
@@ -52,13 +61,15 @@ exports.loadResponseFile = function(responsePath, responseFile, responseType) {
 
 	try {
 		if(_existsFilePath(filePath)) {
-			response = fs.readFileSync(filePath);
-			if(response == "")
+			response = fs.readFileSync(filePath, 'utf8');
+			if(response == "") {
 				console.warn("File '%s' is empty", filePath);
+			}
 		}
 	}
 	catch(err) {
 		console.error("Error in fileSystem");
 	}
-	return response;
+
+	return _parseResponse(response, responseType);
 }

@@ -20,14 +20,12 @@ function _createEndpoints(app) {
 	  	var response;
 		
 	  	var token = baseServer.getBodyParam(request, "token");
-		if(token != undefined) {
-			response = baseServer.loadResponseFile(responsePath, responseFile, responseType);	
-		}
-		else {
-			response = {
-				"code": 1,
-				"error": "'token' is empty"
-			};
+	  	response = baseServer.loadResponseFile(responsePath, responseFile, responseType);	
+
+		if(token == undefined) {
+			response.code = "1";
+			response.error = "bad POST body parameters";
+			response.data = { "message": "'token' empty"};
 		}
 
 	  	return response;

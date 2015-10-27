@@ -19,10 +19,10 @@ function _showHelp() {
 function _createEndpoints(app) {
 	baseServer.call(app, serverEndpoint, method, responseType, function (request) {			  	
 	  	var response;
-		
-	  	var token = baseServer.getBodyParam(request, "token");
+
+		var token = baseServer.getBodyParam(request, "token");
 		if(token != undefined) {
-			var index = baseServer.getBodyParam(request, "page");
+			var index = baseServer.getQueryParam(request, "page");
 			var file = responseFile;
 			if(index != undefined) {
 				file = responseFile+index;
@@ -31,11 +31,12 @@ function _createEndpoints(app) {
 			response = baseServer.loadResponseFile(responsePath, file, responseType);	
 		}
 		else {
-			response = {
-				"code": 1,
-				"error": "'token' is empty"
-			};
+			response = baseServer.loadResponseFile(responsePath, responseFile, responseType);	
+			response.code = "1";
+			response.error = "bad POST body parameters";
+			response.data = { "message": "'token' empty"};
 		}
+
 
 	  	return response;
 	});
