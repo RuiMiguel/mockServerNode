@@ -1,5 +1,5 @@
-var fileSystemUtils = require('../utils/FileSystem.js');
-var loggerUtils = require('../utils/Logger.js');
+var fileSystemUtils = require('../../_utils/FileSystem.js');
+var loggerUtils = require('../../_utils/Logger.js');
 var bodyParser = require("body-parser");
 
 var _response;
@@ -24,14 +24,14 @@ function Response(res) {
 }
 
 function _addHeader(key, value) {
-	_logger.log("added header: key=["+key+"] value=["+value+"]");
+	_logger.log("header added: key=["+key+"] value=["+value+"]");
 	_response.setHeader(key, value);
 }
 
 function _setHeaders(type) {
 	_addHeader('Accept-Encoding', 'gzip, deflate');
 
-	switch(responseType) {
+	switch(type) {
 		case 'JSON':
 			_addHeader('Content-Type', 'application/json');
 			break;

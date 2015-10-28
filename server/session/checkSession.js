@@ -5,7 +5,7 @@ var _server, _configuration;
 
 function _showHelp() {
 	var helpMessage = "*** " + _configuration.getName() + ": use " + _configuration.getMethod() + " " + _configuration.getEndpoint();
-	helpMessage += "\n body params: 'user' & 'password'";
+	helpMessage += "\n body params: 'token' & 'user'";
 	return helpMessage;
 }
 
@@ -13,19 +13,19 @@ function _createEndpoints() {
 	_server.call(_configuration.getEndpoint(), _configuration.getMethod(), _configuration.getResponseType(), function (request) {			  	
 	  	var response;
 		
+		var token = _server.getBodyParam("token");
 		var user = _server.getBodyParam("user");
-		var password = _server.getBodyParam("password");
 
 		response = _server.loadResponseFile();	
 
-		if((user == undefined) || (password == undefined)) {
+		if((token == undefined) || (user == undefined)) {
 			response.code = "1";
 			response.error = "bad POST body parameters";
 
+			if(token == undefined) 
+				response.data = { "message": "'token' empty"};
 			if(user == undefined) 
 				response.data = { "message": "'user' empty"};
-			if(password == undefined) 
-				response.data = { "message": "'password' empty"};
 		}
 
 	  	return response;

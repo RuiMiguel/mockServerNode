@@ -1,28 +1,26 @@
-var fileSystemUtils = require('../utils/FileSystem.js');
-var loggerUtils = require('../utils/Logger.js');
-var responseObject = require('./Response.js');
-var requestObject = require('./Request.js');
+var FileSystemUtils = require('../../_utils/FileSystem.js');
+var LoggerUtils = require('../../_utils/Logger.js');
+var ConfigurationObject = require('./Configuration.js');
+var ResponseObject = require('./Response.js');
+var RequestObject = require('./Request.js');
 
 var _app;
 var _response;
 var _request;
-var _logger;
+var _configuration;
+
+var _logger = LoggerUtils.Logger(true);
 
 //constructor
-function Server(app) {
-	_logger = loggerUtils.Logger(true);
-
+function Server(app, options) {
 	if(app != undefined) {
 		_app = app;
 	}
 	else {
 		_logger.error("Server can't be created, 'app' parameter is undefined");
 	}
-}
 
-function _completeEndpoint(serverEndpoint) {
-	if((serverEndpoint != undefined) && (!serverEndpoint.startsWith("/"))) serverEndpoint = "/"+serverEndpoint;
-	return serverEndpoint;
+	_configuration = ConfigurationObject.Configuration(options);
 }
 
 function _doGet(endpoint, onCallback) {
@@ -86,27 +84,24 @@ function _setHeaders(type) {
 }
 
 function _printErrorMessage(serverEndpoint, type, code, error, data) {
-	_response = responseObject.Response();
-	response.setCode(code);
-	response.setData(data);
-	response.setError(error);
+	_response.setCode(code);
+	_response.setData(data);
+	_response.setError(error);
 
-	console.error(error);
-
-	return response.print();
+	return _response.print();
 }
 
 function _getResponse(){
 	return _response;
 }
 function _setResponse(response){
-	_response = responseObject.Response(response);
+	_response = ResponseObject.Response(response);
 }
 function _getRequest() {
 	return _request;
 }
 function _setRequest(request) {
-	_request = requestObject.Request(request);
+	_request = RequestObject.Request(request);
 }
 
 //class methods
@@ -116,6 +111,10 @@ Server.prototype = {
 		"NO ERROR",
 		"SERVER ERROR"
 		],
+
+	getConfiguration: function() {
+		return _configuration;
+	},
 
 	getBodyParam: function(key) {
 		var paramValue = "";
@@ -150,13 +149,22 @@ Server.prototype = {
 		}
 	},
 
-	loadResponseFile: function(path, file, type) {
+	loadResponseFile: function() {
 		var response = "";
 
 		if(_response != undefined) {
-			var responseData = fileSystemUtils.loadResponseFile(path, file, type);
-			_response.setData(responseData); 
-			response = _response.print();
+			if(_configuration != undefined){
+				var path = _configuration.getResponsePath();
+				var file = _configuration.getResponseFile();
+				var type = _configuration.getResponseType();
+
+				var responseData = FileSystemUtils.loadResponseFile(path, file, type);
+				_response.setData(responseData); 
+				response = _response.print();
+			}
+			else {
+				_logger.error("can not call 'loadResponseFile' from 'configuration' undefined");
+			}
 		}
 		else {
 			_logger.error("can not call 'loadResponseFile' from 'response' undefined");
@@ -165,17 +173,15 @@ Server.prototype = {
 		return response;
 	},
 
-	call: function(serverEndpoint, method, type, onCallback) {
-		serverEndpoint = _completeEndpoint(serverEndpoint);
-
+	call: function(endpoint, method, type, onCallback) {
 		switch(method) {
 			case 'GET':
 			default:
-				_doGet(serverEndpoint, function(req, res) {
+				_doGet(endpoint, function(req, res) {
 					_setRequest(req);
 					_setResponse(res);
 
-					_logger.log("\n"+method+" "+serverEndpoint);
+					_logger.log("\n"+method+" "+endpoint);
 
 					var response= "";
 					
@@ -188,20 +194,20 @@ Server.prototype = {
 					else {
 						var data = null;
 						var code = "500";
-						var msg = "Error: endpoint '"+serverEndpoint+"' doesn't have onCallback method";
+						var msg = "Error: endpoint '"+endpoint+"' doesn't have onCallback method";
 
-						response = _printErrorMessage(serverEndpoint, type, code, msg, data);
+						response = _printErrorMessage(endpoint, type, code, msg, data);
 					}
 
 					res.send(response);
 				});
 				break;
 			case 'POST':
-				_doPost(serverEndpoint, function(req, res) {
+				_doPost(endpoint, function(req, res) {
 					_setRequest(req);
 					_setResponse(res);
 
-					_logger.log("\n"+method+" "+serverEndpoint);
+					_logger.log("\n"+method+" "+endpoint);
 
 					var response = "";
 					
@@ -214,20 +220,20 @@ Server.prototype = {
 					else {
 						var data = null;
 						var code = "500";
-						var msg = "Error: endpoint '"+serverEndpoint+"' doesn't have onCallback method";
+						var msg = "Error: endpoint '"+endpoint+"' doesn't have onCallback method";
 
-						response = _printErrorMessage(serverEndpoint, type, code, msg, data);
+						response = _printErrorMessage(endpoint, type, code, msg, data);
 					}
 
 					res.send(response);
 				});
 				break;
 			case 'PUT':
-				_doPut(serverEndpoint, function(req, res) {
+				_doPut(endpoint, function(req, res) {
 					_setRequest(req);
 					_setResponse(res);
 
-					_logger.log("\n"+method+" "+serverEndpoint);
+					_logger.log("\n"+method+" "+endpoint);
 
 					var response = "";
 					
@@ -240,20 +246,20 @@ Server.prototype = {
 					else {
 						var data = null;
 						var code = "500";
-						var msg = "Error: endpoint '"+serverEndpoint+"' doesn't have onCallback method";
+						var msg = "Error: endpoint '"+endpoint+"' doesn't have onCallback method";
 
-						response = _printErrorMessage(serverEndpoint, type, code, msg, data);
+						response = _printErrorMessage(endpoint, type, code, msg, data);
 					}
 
 					res.send(response);
 				});
 				break;
 			case 'DELETE':
-				_doDelete(serverEndpoint, function(req, res) {
+				_doDelete(endpoint, function(req, res) {
 					_setRequest(req);
 					_setResponse(res);
 
-					_logger.log("\n"+method+" "+serverEndpoint);
+					_logger.log("\n"+method+" "+endpoint);
 
 					var response = "";
 					
@@ -266,9 +272,9 @@ Server.prototype = {
 					else {
 						var data = null;
 						var code = "500";
-						var msg = "Error: endpoint '"+serverEndpoint+"' doesn't have onCallback method";
+						var msg = "Error: endpoint '"+endpoint+"' doesn't have onCallback method";
 
-						response = _printErrorMessage(serverEndpoint, type, code, msg, data);
+						response = _printErrorMessage(endpoint, type, code, msg, data);
 					}
 
 					res.send(response);
@@ -278,6 +284,6 @@ Server.prototype = {
 	}
 }
 
-exports.Server = function(app) {
-	return new Server(app);
+exports.Server = function(app, options) {
+	return new Server(app, options);
 }

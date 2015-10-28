@@ -1,5 +1,5 @@
-var fileSystemUtils = require('../utils/FileSystem.js');
-var loggerUtils = require('../utils/Logger.js');
+var fileSystemUtils = require('../../_utils/FileSystem.js');
+var loggerUtils = require('../../_utils/Logger.js');
 var bodyParser = require("body-parser");
 
 var _request;
@@ -39,7 +39,7 @@ function _getQueryParam(key) {
 
 function _showListElements(list) {
 	for(elem in list) {
-		_logger.log(elem+": "+list[elem]);
+		_logger.log("** "+elem+": "+list[elem]);
   	}
 }
 

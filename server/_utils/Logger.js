@@ -7,6 +7,12 @@ function Logger(debug) {
 
 //class methods
 Logger.prototype = {
+	info: function(msg){
+		if(_DEBUG) {
+			var message = msg+"\n";
+			console.log(message);
+		}
+	},
 	log: function(msg){
 		if(_DEBUG) {
 			var logMessage = "--- "+msg+"\n";

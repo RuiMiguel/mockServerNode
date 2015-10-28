@@ -5,7 +5,8 @@ var loggerUtils = require('./Logger.js');
 var _logger = loggerUtils.Logger(true);
 
 function _getPath(file) {
-	return path.join(__dirname, file);
+	var _projectPath = path.dirname(require.main.filename)+"/server";
+	return path.join(_projectPath, file);
 }
 
 function _existsFilePath(filePath) {
@@ -47,8 +48,8 @@ function _parseResponseFile(response, responseType) {
 }
 
 exports.getRequestEndpointPath = function(serverPath, serverFile) {
-	var file = "../../"+serverPath+"/"+serverFile+".js"
-
+	var file = path.join(serverPath, serverFile+".js");
+	
 	return _getPath(file);
 }
 
@@ -58,7 +59,7 @@ exports.existsEndpointPath = function(path) {
 
 exports.loadResponseFile = function(responsePath, responseFile, responseType) {
 	var responseExtension = _getResponseExtension(responseType);
-	var file = "../../"+responsePath+"/"+responseFile+responseExtension;
+	var file = path.join(responsePath, responseFile+responseExtension);
 	var response = "";
 	var filePath = _getPath(file);
 

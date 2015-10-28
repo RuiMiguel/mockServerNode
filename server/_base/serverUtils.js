@@ -15,8 +15,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 var express = require('express');
 var compress = require('compression');
 var bodyParser = require("body-parser");
-var fileSystemUtils = require('./utils/FileSystem.js');
+var FileSystemUtils = require('../_utils/FileSystem.js');
+var LoggerUtils = require('../_utils/Logger.js');
+
 var ip = require("ip");
+var _logger = LoggerUtils.Logger(true);
 
 var app = express();
 
@@ -34,7 +37,7 @@ function _getIpAddress() {
 }
 
 function _printServerHelp() {
-	console.log("*** Print server help");
+	_logger.info("*** Print server help");
 
 	var helpResponse = "";
 	for(index in availableEndpoints) {
@@ -44,7 +47,7 @@ function _printServerHelp() {
 			helpResponse += serverEndpoint.showHelp() +"<br/>";
 		}
 		else {
-			console.error("Error: server '%s' doesn't have 'showHelp' method. Please create it!", serverEndpoint);
+			_logger.error("Error: server '"+serverEndpoint+"' doesn't have 'showHelp' method. Please create it!");
 		}	
 	}
 		
@@ -52,51 +55,51 @@ function _printServerHelp() {
 }
 
 function _showServerHelp() {
-	console.log("\n================================================ HELP");
+	_logger.info("================================================ HELP");
 	for(index in availableEndpoints) {
 		var serverEndpoint = availableEndpoints[index];
 
 		if(serverEndpoint.showHelp && typeof serverEndpoint.showHelp == 'function') {
-			console.log(serverEndpoint.showHelp());
-			console.log("-------------------------------------");
+			_logger.info(serverEndpoint.showHelp());
+			_logger.info("-------------------------------------");
 		}
 		else {
-			console.error("Error: server '%s' doesn't have 'showHelp' method. Please create it!", serverEndpoint);
+			_logger.error("Error: server '"+serverEndpoint+"' doesn't have 'showHelp' method. Please create it!");
 		}		
 	}
-	console.log("================================================");
+	_logger.info("================================================");
 }
 
 function _validateServerEndpointConfiguration(options) {
 	var validate = true;
 		
 	if(options == undefined) {
-		console.warn("-- server bad configurated, no 'options' setted --");
+		_logger.warning("server bad configurated, no 'options' setted");
 		validate = false;
 	}
 
 	if(options.server == undefined) {
-		console.warn("-- server bad configurated, no 'server' field setted --");
+		_logger.warning("server bad configurated, no 'server' field setted");
 		validate = false;
 	}
 	else {
 		if(options.server.method == undefined) {
-			console.warn("-- server bad configurated, no 'server.method' value setted --");
+			_logger.warning("server bad configurated, no 'server.method' value setted");
 			validate = false;
 		}
 		if(options.server.endpoint == undefined) {
-			console.warn("-- server bad configurated, no 'server.endpoint' value setted --");
+			_logger.warning("server bad configurated, no 'server.endpoint' value setted");
 			validate = false;
 		}
 	}
 
 	if(options.response == undefined) {
-		console.warn("-- server bad configurated, no 'response' field setted --");
+		_logger.warning("server bad configurated, no 'response' field setted");
 		validate = false;
 	}
 	else {
 		if(options.response.type == undefined) {
-			console.warn("-- server bad configurated, no 'response.type' value setted --");
+			_logger.warning("server bad configurated, no 'response.type' value setted");
 			validate = false;
 		}
 	}
@@ -109,7 +112,16 @@ function _existsEndpoint(serverName,serverEndpoint) {
 
 	for(index in availableEndpoints) {
 		var endpoint = availableEndpoints[index];
-		if((endpoint.name() == serverName) && (endpoint.serverEndpoint() == serverEndpoint)) exists = true;
+		endpoint.getServerConfiguration
+		if(endpoint.getServerConfiguration && typeof endpoint.getServerConfiguration == 'function') {
+			var endpointConfiguration = endpoint.getServerConfiguration();
+
+			if((endpointConfiguration.getName() == serverName) && (endpointConfiguration.getEndpoint() == serverEndpoint)) exists = true;
+		}
+		else {
+			_logger.error("Error: '"+serverName+"' method 'getServerConfiguration' doesn't exists or not exported");
+			exists = true;
+		}
 	}
 	return exists;
 }
@@ -126,9 +138,9 @@ function _createEndpoint(options) {
 	var serverName = options.name;
 	var serverEndpoint = options.server.endpoint;
 
-	var requestEndpointPath = fileSystemUtils.getRequestEndpointPath(serverName,serverEndpoint);
+	var requestEndpointPath = FileSystemUtils.getRequestEndpointPath(serverName,serverEndpoint);
 
-	if(fileSystemUtils.existsEndpointPath(requestEndpointPath)) {
+	if(FileSystemUtils.existsEndpointPath(requestEndpointPath)) {
 		var exists = _existsEndpoint(serverName,serverEndpoint);
 		if(!exists) {
 			var newServerEndpoint = require(requestEndpointPath);
@@ -136,13 +148,16 @@ function _createEndpoint(options) {
 			//init requestCall
 			newServerEndpoint.init(app, options);
 			availableEndpoints.push(newServerEndpoint);
+			
+			var newServerConfiguration = newServerEndpoint.getServerConfiguration();
+			_logger.info("++ request endpoint server '"+newServerConfiguration.getName()+newServerConfiguration.getEndpoint()+"'");
 		}
 		else {
-			console.warn("-- server '%s%s' yet exists in available endpoints! please review its configuration --", serverName, serverEndpoint);
+			_logger.warning("server '"+serverName+serverEndpoint+"' yet exists in available endpoints! please review its configuration");
 		}
 	}
 	else 
-		console.error("Error: '%s' can't be created, '%s' don't exists", serverName, requestEndpointPath);
+		_logger.error("Error: '"+serverName+"' can't be created, '"+requestEndpointPath+"' doesn't exists");
 }
  
 exports.addServerEndpoint = function(options) {
@@ -150,14 +165,13 @@ exports.addServerEndpoint = function(options) {
 		var serverName = options.name;
 		var serverEndpoint = options.server.endpoint;
 
-		console.log("++ request endpoint server '%s%s'", serverName, serverEndpoint);
 		_createEndpoint(options);
 	}
 	else {
-		console.warn("-- server bad configurated, not added! please review its configuration --");
+		_logger.warning("server bad configurated, not added! please review its configuration");
 
 		var sampleConfiguration = "{'name': SERVER_NAME,'server': {'method': GET/POST/PUT/DELETE,'endpoint': /ENDPOINT},'response': {'type': RESPONSE_TYPE}";
-		console.warn("** %s **\n",sampleConfiguration);
+		_logger.info("** "+sampleConfiguration+" **");
 	}
 }
 
@@ -171,6 +185,6 @@ exports.launchServer = function(serverName) {
 		var host = server.address().address;
 		var port = server.address().port;
 
-		console.log("\n+++++ " + serverName + " server listening at http://%s:%s +++++\n", host, port);
+		_logger.info("+++++ " + serverName + " server listening at http://"+host+":"+port+" +++++");
 	})
 }
