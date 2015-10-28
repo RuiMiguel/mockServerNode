@@ -11,7 +11,7 @@ function addServerEndpoints() {
 		"name": "login",
 		"server": {
 			"method": "POST",	
-			"endpoint": "/login"
+			"endpoint": "login"
 		},
 		"response": {
 			"type": "JSON"

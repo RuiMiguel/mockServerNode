@@ -1,5 +1,5 @@
 var fileSystemUtils = require('../utils/FileSystem.js');
-var loggerUtils = require('./utils/Logger.js');
+var loggerUtils = require('../utils/Logger.js');
 var bodyParser = require("body-parser");
 
 var _response;
@@ -13,12 +13,18 @@ var errorMessage;
 
 //constructor
 function Response(res) {
-	_response = res;
-	_logger = loggerUtils.Logger();
+	_logger = loggerUtils.Logger(true);
+
+	if(res != undefined) {
+		_response = res;
+	}
+	else {
+		_logger.error("Response can't be created, 'res' parameter is undefined");
+	}
 }
 
 function _addHeader(key, value) {
-	_logger.log("added header: key="+key+" value="+value);
+	_logger.log("added header: key=["+key+"] value=["+value+"]");
 	_response.setHeader(key, value);
 }
 
@@ -51,6 +57,9 @@ Response.prototype = {
 		this.errorMessage = errorMessage;
 	},
 
+	setHeaders: function(type) {
+		_setHeaders(type);
+	},
 	addHeader: function(key, value) {
 		_addHeader(key, value);
 	},
@@ -67,6 +76,6 @@ Response.prototype = {
 
 }
 
-exports.Response = function() {
-	return new Response();
+exports.Response = function(req) {
+	return new Response(req);
 }

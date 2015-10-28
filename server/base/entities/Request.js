@@ -1,5 +1,5 @@
 var fileSystemUtils = require('../utils/FileSystem.js');
-var loggerUtils = require('./utils/Logger.js');
+var loggerUtils = require('../utils/Logger.js');
 var bodyParser = require("body-parser");
 
 var _request;
@@ -7,8 +7,14 @@ var _logger;
 
 //constructor
 function Request(req) {
-	_request = req;
-	_logger = loggerUtils.Logger();
+	_logger = loggerUtils.Logger(true);
+	
+	if(req != undefined) {
+		_request = req;
+	}
+	else {
+		_logger.error("Request can't be created, 'req' parameter is undefined");
+	}
 }
 
 function _getListElements(list, key) {
@@ -76,6 +82,6 @@ Request.prototype = {
 	}
 }
 
-exports.Request = function() {
-	return new Request();
+exports.Request = function(req) {
+	return new Request(req);
 }

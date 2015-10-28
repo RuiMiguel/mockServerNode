@@ -1,13 +1,7 @@
-var baseServer = require('../base/server.js');
+var baseServer = require('../base/entities/Server.js');
+var loggerUtils = require('../base/utils/Logger.js');
 
-var name;
-var serverFile;
-var serverPath;
-var serverEndpoint;
-var method;
-var responseFile;
-var responsePath;
-var responseType;
+var _server;
 
 function _showHelp() {
 	var helpMessage = "*** " + name + ": use " + method + " " + serverEndpoint;
@@ -15,13 +9,17 @@ function _showHelp() {
 	return helpMessage;
 }
 
-function _createEndpoints(app) {
-	baseServer.call(app, serverEndpoint, method, responseType, function (request) {			  	
+function _createEndpoints() {
+	_server.call(serverEndpoint, method, responseType, function (request) {			  	
 	  	var response;
 		
-		var user = baseServer.getBodyParam(request, "user");
-		var password = baseServer.getBodyParam(request, "password");
-		response = baseServer.loadResponseFile(responsePath, responseFile, responseType);	
+		var user = _server.getBodyParam("user");
+		var password = _server.getBodyParam("password");
+
+		_logger.log("responsePath: "+responsePath);
+		_logger.log("responseFile: "+responseFile);
+		_logger.log("responseType: "+responseType);
+		response = _server.loadResponseFile(responsePath, responseFile, responseType);	
 
 		if((user == undefined) || (password == undefined)) {
 			response.code = "1";
@@ -38,6 +36,9 @@ function _createEndpoints(app) {
 }
 
 exports.init = function(app, options) {
+	_server = baseServer.Server(app);
+	_logger = loggerUtils.Logger(true);
+
 	name = options.name;
 	serverPath = options.name;
 	serverFile = options.server.endpoint;
@@ -47,18 +48,13 @@ exports.init = function(app, options) {
 	responseFile = options.server.endpoint;
 	responseType = options.response.type;
 
-	_createEndpoints(app);
+	if(_server != undefined)
+		_createEndpoints();	
+	else {
+		_logger.error("Server can not be created! please check your configuration");
+	}
 }
 
 exports.showHelp = function() {
 	return _showHelp();
 }
-
-exports.name = function() {return name;}
-exports.serverFile = serverFile
-exports.serverPath = serverPath
-exports.serverEndpoint = function() {return serverEndpoint;}
-exports.method = method
-exports.responseFile = responseFile
-exports.responsePath = responsePath
-exports.responseType = responseType

@@ -1,6 +1,8 @@
 var fs = require("fs");
 var path = require('path');
+var loggerUtils = require('./Logger.js');
 
+var _logger = loggerUtils.Logger(true);
 
 function _getPath(file) {
 	return path.join(__dirname, file);
@@ -13,10 +15,10 @@ function _existsFilePath(filePath) {
 		if(fs.existsSync(filePath))
 			exists = true;
 		else 
-			console.error("Error: file '%s' don't exists", filePath);
+			_logger.error("Error: file '"+filePath+"' don't exists");
 	}
 	catch(err) {
-		console.error("Error in 'existsFilePath'");
+		_logger.error("Error in 'existsFilePath'");
 	}
 
 	return exists;
@@ -35,7 +37,7 @@ function _getResponseExtension(responseType) {
 	return responseExtension;
 }
 
-function _parseResponse(response, responseType) {
+function _parseResponseFile(response, responseType) {
 	switch(responseType) {
 		case 'JSON':
 			response = JSON.parse(response);
@@ -45,7 +47,8 @@ function _parseResponse(response, responseType) {
 }
 
 exports.getRequestEndpointPath = function(serverPath, serverFile) {
-	var file = "./"+serverPath+"/"+serverFile+".js"
+	var file = "../../"+serverPath+"/"+serverFile+".js"
+
 	return _getPath(file);
 }
 
@@ -55,7 +58,7 @@ exports.existsEndpointPath = function(path) {
 
 exports.loadResponseFile = function(responsePath, responseFile, responseType) {
 	var responseExtension = _getResponseExtension(responseType);
-	var file = "./"+responsePath+"/"+responseFile+responseExtension;
+	var file = "../../"+responsePath+"/"+responseFile+responseExtension;
 	var response = "";
 	var filePath = _getPath(file);
 
@@ -63,13 +66,13 @@ exports.loadResponseFile = function(responsePath, responseFile, responseType) {
 		if(_existsFilePath(filePath)) {
 			response = fs.readFileSync(filePath, 'utf8');
 			if(response == "") {
-				console.warn("File '%s' is empty", filePath);
+				_logger.warning("File '"+filePath+"' is empty");
 			}
 		}
 	}
 	catch(err) {
-		console.error("Error in fileSystem");
+		_logger.error("Error in fileSystem");
 	}
 
-	return _parseResponse(response, responseType);
+	return _parseResponseFile(response, responseType);
 }
