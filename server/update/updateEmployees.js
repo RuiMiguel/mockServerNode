@@ -3,27 +3,31 @@ var LoggerUtils = require('../_utils/Logger.js');
 
 function _showHelp() {
 	var helpMessage = "*** " + this._configuration.getName() + ": use " + this._configuration.getMethod() + " " + this._configuration.getEndpoint();
-	helpMessage += "\n body params: 'token' & 'user'";
+	helpMessage += "\n query params: 'page' [optional]";
+	helpMessage += "\n body params: 'token'";
 	return helpMessage;
 }
 
 function _createEndpoints() {
-	this._server.launchCall(this._configuration.getEndpoint(), this._configuration.getMethod(), this._configuration.getResponseType(), function (req, res) {			  	
+	this._server.launchCall(this._configuration.getEndpoint(), this._configuration.getMethod(), this._configuration.getResponseType(), function (req, res) {	
 	  	var response;
 		
 		var token = req.getBodyParam("token");
-		var user = req.getBodyParam("user");
 
-		response = res.loadResponseFile();	
+		if(token != undefined) {
+			var index = req.getQueryParam("page");
+			var file = responseFile;
+			if(index != undefined) {
+				file = responseFile+index;
+			}
 
-		if((token == undefined) || (user == undefined)) {
-			response.code = "1";
-			response.error = "bad POST body parameters";
-
-			if(token == undefined) 
-				response.data = { "message": "'token' empty"};
-			if(user == undefined) 
-				response.data = { "message": "'user' empty"};
+			response = res.loadResponseFile();	
+		}
+		else {
+			response = {
+				"code": 1,
+				"error": "'token' is empty"
+			};
 		}
 
 	  	return response;

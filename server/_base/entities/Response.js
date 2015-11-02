@@ -1,22 +1,12 @@
-var fileSystemUtils = require('../../_utils/FileSystem.js');
-var loggerUtils = require('../../_utils/Logger.js');
-var bodyParser = require("body-parser");
+var FileSystemUtils = require('../../_utils/FileSystem.js');
+var LoggerUtils = require('../../_utils/Logger.js');
 
-var _response;
-var _logger;
-
-
-var code;
-var data;
-var error;
-var errorMessage;
+var _logger = LoggerUtils.Logger(true);
 
 //constructor
 function Response(res) {
-	_logger = loggerUtils.Logger(true);
-
 	if(res != undefined) {
-		_response = res;
+		this._response = res;
 	}
 	else {
 		_logger.error("Response can't be created, 'res' parameter is undefined");
@@ -24,19 +14,24 @@ function Response(res) {
 }
 
 function _addHeader(key, value) {
-	_logger.log("header added: key=["+key+"] value=["+value+"]");
-	_response.setHeader(key, value);
+	if(this._response != undefined) {
+		this._response.setHeader(key, value);		
+		_logger.log("header added: key=["+key+"] value=["+value+"]");
+	}
+	else {
+		_logger.error("can not call '_addHeader', '_response' undefined");
+	}
 }
 
 function _setHeaders(type) {
-	_addHeader('Accept-Encoding', 'gzip, deflate');
+	_addHeader.call(this, 'Accept-Encoding', 'gzip, deflate');
 
 	switch(type) {
 		case 'JSON':
-			_addHeader('Content-Type', 'application/json');
+			_addHeader.call(this, 'Content-Type', 'application/json');
 			break;
 		case 'XML':
-			_addHeader('Content-Type', 'application/xml');
+			_addHeader.call(this, 'Content-Type', 'application/xml');
 			break;
 	}
 }
@@ -44,28 +39,15 @@ function _setHeaders(type) {
 
 //class methods
 Response.prototype = {
-	setCode: function(code){
-		this.code = code;
-	},
-	setData: function(data){
-		this.data = data;
-	},
-	setError: function(error){
-		this.error = error;
-	},
-	setErrorMessage: function(errorMessage){
-		this.errorMessage = errorMessage;
-	},
-
 	setHeaders: function(type) {
-		_setHeaders(type);
+		_setHeaders.call(this, type);
 	},
 	addHeader: function(key, value) {
-		_addHeader(key, value);
+		_addHeader.call(this, key, value);
 	},
 
 	loadFromFile: function(path, file, type) {
-		var data = fileSystemUtils.loadResponseFile(path, file, type);
+		var data = FileSystemUtils.loadResponseFile(path, file, type);
 		setData(data); 
 		return this;
 	},
@@ -73,9 +55,8 @@ Response.prototype = {
 	print: function(){
 		return JSON.stringify(this);
 	}
-
 }
 
-exports.Response = function(req) {
-	return new Response(req);
+exports.Response = function(res) {
+	return new Response(res);
 }

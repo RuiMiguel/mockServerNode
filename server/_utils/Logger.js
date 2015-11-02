@@ -15,7 +15,7 @@ Logger.prototype = {
 	},
 	log: function(msg){
 		if(_DEBUG) {
-			var logMessage = "--- "+msg+"\n";
+			var logMessage = "-- "+msg+"\n";
 			console.log(logMessage);
 		}
 	},

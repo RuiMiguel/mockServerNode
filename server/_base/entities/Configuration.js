@@ -1,3 +1,6 @@
+var LoggerUtils = require('../../_utils/Logger.js');
+
+var _logger = LoggerUtils.Logger(true);
 
 var _name, _endpoint, _method, _responsePath, _responseFile, _responseType;
 
@@ -43,6 +46,43 @@ Configuration.prototype = {
 	getResponseType: function() {
 		return _responseType;
 	}
+}
+
+exports.validateServerEndpointConfiguration = function(options) {
+	var validate = true;
+		
+	if(options == undefined) {
+		_logger.warning("server bad configurated, no 'options' setted");
+		validate = false;
+	}
+
+	if(options.server == undefined) {
+		_logger.warning("server bad configurated, no 'server' field setted");
+		validate = false;
+	}
+	else {
+		if(options.server.method == undefined) {
+			_logger.warning("server bad configurated, no 'server.method' value setted");
+			validate = false;
+		}
+		if(options.server.endpoint == undefined) {
+			_logger.warning("server bad configurated, no 'server.endpoint' value setted");
+			validate = false;
+		}
+	}
+
+	if(options.response == undefined) {
+		_logger.warning("server bad configurated, no 'response' field setted");
+		validate = false;
+	}
+	else {
+		if(options.response.type == undefined) {
+			_logger.warning("server bad configurated, no 'response.type' value setted");
+			validate = false;
+		}
+	}
+
+	return validate;
 }
 
 exports.Configuration = function(options) {

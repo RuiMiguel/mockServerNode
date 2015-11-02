@@ -1,22 +1,20 @@
 var BaseServer = require('../_base/entities/Server.js');
 var LoggerUtils = require('../_utils/Logger.js');
 
-var _server, _configuration;
-
 function _showHelp() {
-	var helpMessage = "*** " + _configuration.getName() + ": use " + _configuration.getMethod() + " " + _configuration.getEndpoint();
+	var helpMessage = "*** " + this._configuration.getName() + ": use " + this._configuration.getMethod() + " " + this._configuration.getEndpoint();
 	helpMessage += "\n body params: 'token'";
 	return helpMessage;
 }
 
 function _createEndpoints() {
-	_server.call(_configuration.getEndpoint(), _configuration.getMethod(), _configuration.getResponseType(), function (request) {			  	
+	this._server.launchCall(this._configuration.getEndpoint(), this._configuration.getMethod(), this._configuration.getResponseType(), function (req, res) {		
 	  	var response;
 		
-		var token = _server.getBodyParam("token");
+		var token = req.getBodyParam("token");
 
 		if(token !== undefined) {
-			response = _server.loadResponseFile();	
+			response = res.loadResponseFile();	
 		}
 		else {
 			response = {
@@ -30,21 +28,21 @@ function _createEndpoints() {
 }
 
 exports.init = function(app, options) {
-	_server = BaseServer.Server(app, options);
-	_configuration = _server.getConfiguration();
+	this._server = BaseServer.Server(app, options);
+	this._configuration = this._server.getConfiguration();
 
 	_logger = LoggerUtils.Logger(true);
 
-	if(_server != undefined)
-		_createEndpoints();	
+	if(this._server != undefined)
+		_createEndpoints.call(this);	
 	else {
 		_logger.error("Server can not be created! please check your configuration");
 	}
 }
 
 exports.getServerConfiguration = function(){
-	return _server.getConfiguration();
+	return this._server.getConfiguration();
 }
 exports.showHelp = function() {
-	return _showHelp();
+	return _showHelp.call(this);
 }

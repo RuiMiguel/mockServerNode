@@ -4,52 +4,52 @@ var ConfigurationObject = require('./Configuration.js');
 var ResponseObject = require('./Response.js');
 var RequestObject = require('./Request.js');
 
-var _app;
-var _response;
-var _request;
-var _configuration;
-
 var _logger = LoggerUtils.Logger(true);
 
 //constructor
-function Server(app, options) {
+function Server(app, configuration) {
 	if(app != undefined) {
-		_app = app;
+		this._app = app;
 	}
 	else {
 		_logger.error("Server can't be created, 'app' parameter is undefined");
 	}
 
-	_configuration = ConfigurationObject.Configuration(options);
+	if(configuration != undefined) {
+		this._configuration = configuration;
+	}
+	else {
+		_logger.error("Server configuration can't be created, 'configuration' parameter is undefined");
+	}
 }
 
 function _doGet(endpoint, onCallback) {
-	if(_app != undefined) {
-		_app.get(endpoint, onCallback);
+	if(this._app != undefined) {
+		this._app.get(endpoint, onCallback);
 	}
 	else {
 		_logger.error("can not call '_doGet' from 'app' undefined");
 	}
 }
 function _doPost(endpoint, onCallback) {
-	if(_app != undefined) {
-		_app.post(endpoint, onCallback);
+	if(this._app != undefined) {
+		this._app.post(endpoint, onCallback);
 	}
 	else {
 		_logger.error("can not call '_doPost' from 'app' undefined");
 	}
 }
 function _doPut(endpoint, onCallback) {
-	if(_app != undefined) {
-		_app.put(endpoint, onCallback);
+	if(this._app != undefined) {
+		this._app.put(endpoint, onCallback);
 	}
 	else {
 		_logger.error("can not call '_doPut' from 'app' undefined");
 	}
 }
 function _doDelete(endpoint, onCallback) {
-	if(_app != undefined) {
-		_app.delete(endpoint, onCallback);
+	if(this._app != undefined) {
+		this._app.delete(endpoint, onCallback);
 	}
 	else {
 		_logger.error("can not call '_doDelete' from 'app' undefined");
@@ -57,8 +57,8 @@ function _doDelete(endpoint, onCallback) {
 }
 
 function _showBodyParams() {
-	if(_request != undefined) {
-		_request.showAllBodyParams();
+	if(this._request != undefined) {
+		this._request.showAllBodyParams();
 	}
 	else {
 		_logger.error("can not call '_showBodyParams' from 'request' undefined");
@@ -66,8 +66,8 @@ function _showBodyParams() {
 }
 
 function _showQueryParams() {
-	if(_request != undefined) {
-		_request.showAllQueryParams();
+	if(this._request != undefined) {
+		this._request.showAllQueryParams();
 	}
 	else {
 		_logger.error("can not call '_showQueryParams' from 'request' undefined");
@@ -75,8 +75,8 @@ function _showQueryParams() {
 }
 
 function _setHeaders(type) {
-	if(_response != undefined) {
-		_response.setHeaders(type);
+	if(this._response != undefined) {
+		this._response.setHeaders(type);
 	}
 	else {
 		_logger.error("can not call '_setHeaders' from 'response' undefined");
@@ -84,43 +84,51 @@ function _setHeaders(type) {
 }
 
 function _printErrorMessage(serverEndpoint, type, code, error, data) {
-	_response.setCode(code);
-	_response.setData(data);
-	_response.setError(error);
+	this._response.setCode(code);
+	this._response.setData(data);
+	this._response.setError(error);
 
-	return _response.print();
+	return this._response.print();
 }
 
 function _getResponse(){
-	return _response;
+	return this._response;
 }
 function _setResponse(response){
-	_response = ResponseObject.Response(response);
+	this._response = ResponseObject.Response(response);
+/*
+	var path = this._configuration.getResponsePath();
+	var file = this._configuration.getResponseFile();
+	var type = this._configuration.getResponseType();
+
+	this._response.setPath(path);
+	this._response.setFile(file);
+	this._response.setType(type);
+	*/
 }
 function _getRequest() {
-	return _request;
+	return this._request;
 }
 function _setRequest(request) {
-	_request = RequestObject.Request(request);
+	this._request = RequestObject.Request(request);
 }
 
 //class methods
 Server.prototype = {
-	errorCodes: ["0","500"],
-	errorMessages: [
-		"NO ERROR",
-		"SERVER ERROR"
-		],
-
 	getConfiguration: function() {
-		return _configuration;
+		return this._configuration;
 	},
-
+	getRequest: function() {
+		return _getRequest.call(this);
+	},
+	getResponse: function() {
+		return _getResponse.call(this);
+	},
 	getBodyParam: function(key) {
 		var paramValue = "";
 
-		if(_request != undefined) {
-			paramValue = _request.getBodyParam(key);
+		if(this._request != undefined) {
+			paramValue = this._request.getBodyParam(key);
 		}
 		else {
 			_logger.error("can not call 'getBodyParam' from 'request' undefined");
@@ -131,8 +139,8 @@ Server.prototype = {
 	getQueryParam: function(key) {
 		var paramValue = "";
 
-		if(_request != undefined) {
-			paramValue = _request.getQueryParam(key);
+		if(this._request != undefined) {
+			paramValue = this._request.getQueryParam(key);
 		}
 		else {
 			_logger.error("can not call 'getQueryParam' from 'request' undefined");
@@ -141,8 +149,8 @@ Server.prototype = {
 		return paramValue;
 	},
 	addHeader: function(key, value) {
-		if(_response != undefined) {
-			_response.addHeader(key, value);
+		if(this._response != undefined) {
+			this._response.addHeader(key, value);
 		}
 		else {
 			_logger.error("can not call 'addHeader' from 'response' undefined");
@@ -152,15 +160,15 @@ Server.prototype = {
 	loadResponseFile: function() {
 		var response = "";
 
-		if(_response != undefined) {
-			if(_configuration != undefined){
-				var path = _configuration.getResponsePath();
-				var file = _configuration.getResponseFile();
-				var type = _configuration.getResponseType();
+		if(this._response != undefined) {
+			if(this._configuration != undefined){
+				var path = this._configuration.getResponsePath();
+				var file = this._configuration.getResponseFile();
+				var type = this._configuration.getResponseType();
 
 				var responseData = FileSystemUtils.loadResponseFile(path, file, type);
-				_response.setData(responseData); 
-				response = _response.print();
+				this._response.setData(responseData); 
+				response = this._response.print();
 			}
 			else {
 				_logger.error("can not call 'loadResponseFile' from 'configuration' undefined");
@@ -173,108 +181,111 @@ Server.prototype = {
 		return response;
 	},
 
-	call: function(endpoint, method, type, onCallback) {
+	launchCall: function(endpoint, method, type, onCallback) {
 		switch(method) {
 			case 'GET':
 			default:
-				_doGet(endpoint, function(req, res) {
-					_setRequest(req);
-					_setResponse(res);
+				_doGet.call(this, endpoint, function(req, res) {
+					_setRequest.call(this, req);
+					_setResponse.call(this, res);
 
-					_logger.log("\n"+method+" "+endpoint);
+					_logger.log(method+" "+endpoint);
 
 					var response= "";
 					
-					_showQueryParams();
-					_setHeaders(type);
+					_showQueryParams.call(this);
+					_setHeaders.call(this, type);
 
 					if(onCallback && typeof onCallback == 'function') {
-						responseData = onCallback(req);
+						responseData = onCallback(_getRequest.call(this), _getResponse.call(this));
 					}
 					else {
 						var data = null;
 						var code = "500";
 						var msg = "Error: endpoint '"+endpoint+"' doesn't have onCallback method";
 
-						response = _printErrorMessage(endpoint, type, code, msg, data);
+						response = _printErrorMessage.call(this, endpoint, type, code, msg, data);
 					}
 
 					res.send(response);
 				});
 				break;
 			case 'POST':
-				_doPost(endpoint, function(req, res) {
-					_setRequest(req);
-					_setResponse(res);
+				_doPost.call(this, endpoint, function(req, res) {
 
-					_logger.log("\n"+method+" "+endpoint);
+					_logger.log("Server _doPost: "+req);
+
+					_setRequest.call(this, req);
+					_setResponse.call(this, res);
+
+					_logger.log(method+" "+endpoint);
 
 					var response = "";
 					
-					_showBodyParams();
-					_setHeaders(type);
+					_showBodyParams.call(this);
+					_setHeaders.call(this, type);
 
 					if(onCallback && typeof onCallback == 'function') {
-						response = onCallback(req);
+						responseData = onCallback(this);
 					}
 					else {
 						var data = null;
 						var code = "500";
 						var msg = "Error: endpoint '"+endpoint+"' doesn't have onCallback method";
 
-						response = _printErrorMessage(endpoint, type, code, msg, data);
+						response = _printErrorMessage.call(this, endpoint, type, code, msg, data);
 					}
 
 					res.send(response);
 				});
 				break;
 			case 'PUT':
-				_doPut(endpoint, function(req, res) {
-					_setRequest(req);
-					_setResponse(res);
+				_doPut.call(this, endpoint, function(req, res) {
+					_setRequest.call(this, req);
+					_setResponse.call(this, res);
 
-					_logger.log("\n"+method+" "+endpoint);
+					_logger.log(method+" "+endpoint);
 
 					var response = "";
 					
-					_showBodyParams();
-					_setHeaders(type);
+					_showBodyParams.call(this);
+					_setHeaders.call(this, type);
 
 					if(onCallback && typeof onCallback == 'function') {
-						response = onCallback(req);
+						response = onCallback(_getRequest.call(this), _getResponse.call(this));
 					}
 					else {
 						var data = null;
 						var code = "500";
 						var msg = "Error: endpoint '"+endpoint+"' doesn't have onCallback method";
 
-						response = _printErrorMessage(endpoint, type, code, msg, data);
+						response = _printErrorMessage.call(this, endpoint, type, code, msg, data);
 					}
 
 					res.send(response);
 				});
 				break;
 			case 'DELETE':
-				_doDelete(endpoint, function(req, res) {
-					_setRequest(req);
-					_setResponse(res);
+				_doDelete.call(this, endpoint, function(req, res) {
+					_setRequest.call(this, req);
+					_setResponse.call(this, res);
 
-					_logger.log("\n"+method+" "+endpoint);
+					_logger.log(method+" "+endpoint);
 
 					var response = "";
 					
-					_showBodyParams();
-					_setHeaders(type);
+					_showBodyParams.call(this);
+					_setHeaders.call(this, type);
 
 					if(onCallback && typeof onCallback == 'function') {
-						response = onCallback(req);
+						response = onCallback(_getRequest.call(this), _getResponse.call(this));
 					}
 					else {
 						var data = null;
 						var code = "500";
 						var msg = "Error: endpoint '"+endpoint+"' doesn't have onCallback method";
 
-						response = _printErrorMessage(endpoint, type, code, msg, data);
+						response = _printErrorMessage.call(this, endpoint, type, code, msg, data);
 					}
 
 					res.send(response);
@@ -284,6 +295,6 @@ Server.prototype = {
 	}
 }
 
-exports.Server = function(app, options) {
-	return new Server(app, options);
+exports.Server = function(app, configuration) {
+	return new Server(app, configuration);
 }

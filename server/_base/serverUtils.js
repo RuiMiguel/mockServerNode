@@ -17,6 +17,7 @@ var compress = require('compression');
 var bodyParser = require("body-parser");
 var FileSystemUtils = require('../_utils/FileSystem.js');
 var LoggerUtils = require('../_utils/Logger.js');
+var ConfigurationObject = require('./entities/Configuration.js');
 
 var ip = require("ip");
 var _logger = LoggerUtils.Logger(true);
@@ -70,56 +71,24 @@ function _showServerHelp() {
 	_logger.info("================================================");
 }
 
-function _validateServerEndpointConfiguration(options) {
-	var validate = true;
-		
-	if(options == undefined) {
-		_logger.warning("server bad configurated, no 'options' setted");
-		validate = false;
-	}
-
-	if(options.server == undefined) {
-		_logger.warning("server bad configurated, no 'server' field setted");
-		validate = false;
-	}
-	else {
-		if(options.server.method == undefined) {
-			_logger.warning("server bad configurated, no 'server.method' value setted");
-			validate = false;
-		}
-		if(options.server.endpoint == undefined) {
-			_logger.warning("server bad configurated, no 'server.endpoint' value setted");
-			validate = false;
-		}
-	}
-
-	if(options.response == undefined) {
-		_logger.warning("server bad configurated, no 'response' field setted");
-		validate = false;
-	}
-	else {
-		if(options.response.type == undefined) {
-			_logger.warning("server bad configurated, no 'response.type' value setted");
-			validate = false;
-		}
-	}
-
-	return validate;
-}
-
-function _existsEndpoint(serverName,serverEndpoint) {
+function _existsEndpoint(configuration) {
 	var exists = false;
+	var serverName = configuration.getName();
+	var serverEndpoint = configuration.getEndpoint();
 
 	for(index in availableEndpoints) {
 		var endpoint = availableEndpoints[index];
-		endpoint.getServerConfiguration
 		if(endpoint.getServerConfiguration && typeof endpoint.getServerConfiguration == 'function') {
 			var endpointConfiguration = endpoint.getServerConfiguration();
+_logger.log("endpointConfiguration.getName(): "+endpointConfiguration.getName());
+_logger.log("serverName: "+serverName);
 
+_logger.log("endpointConfiguration.getEndpoint(): "+endpointConfiguration.getEndpoint());
+_logger.log("serverEndpoint: "+serverEndpoint);
 			if((endpointConfiguration.getName() == serverName) && (endpointConfiguration.getEndpoint() == serverEndpoint)) exists = true;
 		}
 		else {
-			_logger.error("Error: '"+serverName+"' method 'getServerConfiguration' doesn't exists or not exported");
+			_logger.error("Error: '"+serverName+"' - method 'getServerConfiguration' doesn't exists or not exported");
 			exists = true;
 		}
 	}
@@ -134,23 +103,22 @@ function _createRootEndpoint() {
 	})
 }
 
-function _createEndpoint(options) {
-	var serverName = options.name;
-	var serverEndpoint = options.server.endpoint;
+function _createEndpoint(configuration) {
+	var serverName = configuration.getName();
+	var serverEndpoint = configuration.getEndpoint();
 
 	var requestEndpointPath = FileSystemUtils.getRequestEndpointPath(serverName,serverEndpoint);
 
 	if(FileSystemUtils.existsEndpointPath(requestEndpointPath)) {
-		var exists = _existsEndpoint(serverName,serverEndpoint);
+		var exists = _existsEndpoint(configuration);
 		if(!exists) {
 			var newServerEndpoint = require(requestEndpointPath);
 		
 			//init requestCall
-			newServerEndpoint.init(app, options);
+			newServerEndpoint.init(app, configuration);
 			availableEndpoints.push(newServerEndpoint);
-			
-			var newServerConfiguration = newServerEndpoint.getServerConfiguration();
-			_logger.info("++ request endpoint server '"+newServerConfiguration.getName()+newServerConfiguration.getEndpoint()+"'");
+	
+			_logger.info("++ request endpoint server '"+serverName+serverEndpoint+"'");
 		}
 		else {
 			_logger.warning("server '"+serverName+serverEndpoint+"' yet exists in available endpoints! please review its configuration");
@@ -161,11 +129,9 @@ function _createEndpoint(options) {
 }
  
 exports.addServerEndpoint = function(options) {
-	if(_validateServerEndpointConfiguration(options)) {
-		var serverName = options.name;
-		var serverEndpoint = options.server.endpoint;
-
-		_createEndpoint(options);
+	if(ConfigurationObject.validateServerEndpointConfiguration(options)) {
+		var configuration = ConfigurationObject.Configuration(options);
+		_createEndpoint(configuration);
 	}
 	else {
 		_logger.warning("server bad configurated, not added! please review its configuration");

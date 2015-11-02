@@ -1,16 +1,11 @@
-var fileSystemUtils = require('../../_utils/FileSystem.js');
 var loggerUtils = require('../../_utils/Logger.js');
-var bodyParser = require("body-parser");
 
-var _request;
-var _logger;
+var _logger = loggerUtils.Logger(true);
 
 //constructor
 function Request(req) {
-	_logger = loggerUtils.Logger(true);
-	
 	if(req != undefined) {
-		_request = req;
+		this._request = req;
 	}
 	else {
 		_logger.error("Request can't be created, 'req' parameter is undefined");
@@ -26,15 +21,38 @@ function _getListElements(list, key) {
 }
 
 function _getHeaderValue(key) {
-	return _getListElements(_request.headers, key);
+	var paramValue = "";
+	if(this._request != undefined) {
+		paramValue = _getListElements(this._request.headers, key);
+	}
+	else {
+		_logger.error("can not call '_getHeaderValue', '_request' undefined");
+	}
+
+	return paramValue;
 }
 
 function _getBodyParam(key) {
-	return _getListElements(_request.body, key);
+	var paramValue = "";
+	if(this._request != undefined) {
+		paramValue = _getListElements(this._request.body, key);
+	}
+	else {
+		_logger.error("can not call '_getBodyParam', '_request' undefined");
+	}
+
+	return paramValue;
 }
 
 function _getQueryParam(key) {
-	return _getListElements(_request.query, key);
+	var paramValue = "";
+	if(this._request != undefined) {
+		paramValue = _getListElements(this._request.query, key);
+	}
+	else {
+		_logger.error("can not call '_getQueryParam', '_request' undefined");
+	}
+	return paramValue;
 }
 
 function _showListElements(list) {
@@ -44,41 +62,55 @@ function _showListElements(list) {
 }
 
 function _showAllHeaders() {
-	_logger.log("headers");
-	_showListElements(_request.headers);
+	if(this._request != undefined) {
+		_logger.log("headers");
+		_showListElements(this._request.headers);
+	}
+	else {
+		_logger.error("can not call '_showAllHeaders', '_request' undefined");
+	}
 }
 
 function _showBodyParams() {
-	_logger.log("body params");
-	_showListElements(_request.body);
+	if(this._request != undefined) {
+		_logger.log("body params");
+		_showListElements(this._request.body);
+	}
+	else {
+		_logger.error("can not call '_showBodyParams', '_request' undefined");
+	}
 }
 
 function _showQueryParams() {
-	_logger.log("query params");
-	_showListElements(_request.query);
+	if(this._request != undefined) {
+		_logger.log("query params");
+		_showListElements(this._request.query);
+	}
+	else {
+		_logger.error("can not call '_showQueryParams', '_request' undefined");
+	}
 }
 
 
 //class methods
 Request.prototype = {
 	getHeaderValue: function(key){
-		return _getHeaderValue(key);
+		return _getHeaderValue.call(this, key);
 	},
 	getBodyParam: function(key){
-		return _getBodyParam(key);
+		return _getBodyParam.call(this, key);
 	},
 	getQueryParam: function(key) {
-		return _getQueryParam(key);
+		return _getQueryParam.call(this, key);
 	},
-
 	showAllHeaders: function() {
-		return _showAllHeaders();
+		return _showAllHeaders.call(this);
 	},
 	showAllBodyParams: function() {
-		return _showBodyParams();
+		return _showBodyParams.call(this);
 	},
 	showAllQueryParams: function() {
-		return _showQueryParams();
+		return _showQueryParams.call(this);
 	}
 }
 

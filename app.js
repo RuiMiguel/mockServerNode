@@ -17,7 +17,7 @@ function addServerEndpoints() {
 			"type": "JSON"
 		}
 	});
-
+/*
 	//database version
 	serverUtils.addServerEndpoint({
 		"name": "dbVersion",
@@ -42,13 +42,13 @@ function addServerEndpoints() {
 		}
 	});
 
-/*
+
 	//update headquarters
 	serverUtils.addServerEndpoint({
 		"name": "update",
 		"server": {
 			"method": "POST",	
-			"endpoint": "/updateHeadquarters"
+			"endpoint": "updateHeadquarters"
 		},
 		"response": {
 			"type": "JSON"
@@ -60,11 +60,11 @@ function addServerEndpoints() {
 		"name": "update",
 		"server": {
 			"method": "POST",
-			"endpoint": "/updateEmployees"
+			"endpoint": "updateEmployees"
 		},		
 		"response": {
 			"type": "JSON"
 		}
 	});
-	*/
+*/
 }
