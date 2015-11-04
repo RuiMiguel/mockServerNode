@@ -67,7 +67,7 @@ function _createHeadquarters(number, page, maxPages) {
 			"email": [
 				{
 					"type": utils.getRandomString(4),
-					"number": utils.getRandomEmail()
+					"address": utils.getRandomEmail()
 				}
 			],
 			"location": {
