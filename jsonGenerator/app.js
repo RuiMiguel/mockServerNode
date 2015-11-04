@@ -46,6 +46,7 @@ function _createHeadquarters(number, page, maxPages) {
 		headquarter = {
 			"id": utils.getRandomId(4),
 			"name": utils.getRandomString(40),
+			"image": "",
 			"phone": [
 				{
 					"type": "MAR",
@@ -151,7 +152,7 @@ function _generateJSON() {
 
 
 	var fileName = "updateEmployees";
-	var maxEmployeesPages = 10;
+	var maxEmployeesPages = 1;
 	var employeesPerPage = 25000/maxEmployeesPages;
 	for(var i=1;i<=maxEmployeesPages; i++) {
 		var jsonEmployees = _createEmployees(employeesPerPage, i, maxEmployeesPages);
