@@ -47,30 +47,12 @@ function _createHeadquarters(number, page, maxPages) {
 			"id": utils.getRandomId(4),
 			"name": utils.getRandomString(40),
 			"image": "",
-			"phone": [
-				{
-					"type": "MAR",
-					"number": utils.getRandomPhone(30)
-				},
-				{
-					"type": "SAE",
-					"number": utils.getRandomPhone(30)
-				},
-				{
-					"type": "Seguridad",
-					"number": utils.getRandomPhone(30)
-				},
-				{
-					"type": "Emergencias",
-					"number": utils.getRandomPhone(30)
-				}
-			],
-			"email": [
-				{
-					"type": utils.getRandomString(4),
-					"address": utils.getRandomEmail()
-				}
-			],
+			"phones": {
+				"Emergencia": utils.getRandomPhone(4),
+				"MAR": utils.getRandomPhone(9),
+				"SAE": utils.getRandomPhone(4),
+				"Seguridad": utils.getRandomPhone(9)
+			},
 			"location": {
 				"latitude": utils.getRandomLatitude(),
 				"longitude": utils.getRandomLongitude()
@@ -102,24 +84,12 @@ function _createEmployees(number, page, maxPages) {
 			"photo": "",
 			"position": utils.getRandonPosition(),
 			"department": utils.getRandonDepartment(),
-			"phoneNumber": [
-				{
-					"type": "ZTEIB",
-					"number": utils.getRandomPhone(30),
-				},
-				{
-					"type": "ZTEMO",
-					"number": utils.getRandomPhone(30),
-				},
-				{
-					"type": "ZTELM",
-					"number": utils.getRandomPhone(30),
-				},
-				{
-					"type": "ZTMOV",
-					"number": utils.getRandomPhone(30),
-				}
-			],
+			"phoneNumbers": {
+				"Fijo_Corto": utils.getRandomPhone(4),
+				"Fijo_Largo": utils.getRandomPhone(9),
+				"Movil_Corto": utils.getRandomPhone(4),
+				"Movil_Largo": utils.getRandomPhone(9)				
+			},
 			"email": utils.getRandomEmail(80),
 			"lyncId": utils.getRandomId(9),
 			"headquarterId": utils.getRandomId(4),
@@ -152,7 +122,7 @@ function _generateJSON() {
 
 
 	var fileName = "updateEmployees";
-	var maxEmployeesPages = 1;
+	var maxEmployeesPages = 10;
 	var employeesPerPage = 25000/maxEmployeesPages;
 	for(var i=1;i<=maxEmployeesPages; i++) {
 		var jsonEmployees = _createEmployees(employeesPerPage, i, maxEmployeesPages);
