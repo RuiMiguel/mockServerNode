@@ -12,6 +12,7 @@
     "body-parser": "^1.14.1",
     "compression": "^1.6.0",
     "express": "^4.13.3",
-    "ip": "^1.0.1"
+    "ip": "^1.0.1",
+    "connect-pause": "^0.1.0"
   }
 }
