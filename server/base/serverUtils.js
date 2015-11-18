@@ -17,6 +17,7 @@ var compress = require('compression');
 var bodyParser = require("body-parser");
 var fileSystemUtils = require('../filesystem.js');
 var ip = require("ip");
+var pause = require('connect-pause');
 
 var app = express();
 
@@ -24,7 +25,8 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
 //Here we are configuring express to use body-parser as middle-ware.
 app.use(bodyParser.json()); // to support JSON-encoded bodies
-app.use(compress()); 
+app.use(compress());
+app.use(pause(1000));
 
 var availableEndpoints = new Array();
 
